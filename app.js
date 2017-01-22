@@ -5,8 +5,8 @@ var MatrixView = function(x, y, matrixData) {
     this.matrix = matrixData;
     this.x = x;
     this.y = y;
-    this.rowHeight = 32;
-    this.columnWidth = 32;
+    this.rowHeight = 48;
+    this.columnWidth = 48;
     this.braceConfig = this.calculatedBraceConfig();
 };
 
@@ -23,7 +23,7 @@ MatrixView.prototype.drawMatrixValues = function() {
         for (var columnIndex = 0; columnIndex < row.length; columnIndex++) {
             var value = row[columnIndex];
             text(value,
-                this.x + columnIndex * this.columnWidth,
+                this.x + columnIndex * this.columnWidth + textWidth('00'),
                 this.y + rowIndex * this.rowHeight);
         }
     }
@@ -70,8 +70,6 @@ MatrixView.prototype.drawBrace = function(isLeftBracket) {
 
 MatrixView.prototype.getWidth = function() {
     var columnCount = this.matrix[0].length;
-    // return width + textWidth('0') / 2 + columnCount * this.columnWidth +
-    //             width - textWidth('0');
     return columnCount * this.columnWidth + this.braceConfig.width * 2 -
         textWidth('0') / 2 + this.braceConfig.thickness;
 };
@@ -93,32 +91,69 @@ MatrixView.prototype.calculatedBraceConfig = function() {
 // **************************************************
 // Setup ********************************************
 // **************************************************
-var font = createFont('monospace');
-textFont(font, 24);
+var monospaceFont = createFont('monospace');
+var sansSerifFont = createFont('sans-serif');
+textFont(monospaceFont, 24);
+textAlign(RIGHT);
 
 var matrixDataA = [
     [1, 2],
     [3, 4],
     ];
 var matrixDataB = [
-    [5, 6, 1],
-    [7, 8, 2],
-    [1, 2, 3],
-    [7, 8, 4],
-    [1, 2, 5],
+    [5, 6],
+    [7, 8],
     ];
-var matrixViewA = new MatrixView(100, 100, matrixDataA);
-var matrixViewB = new MatrixView(100, 100, matrixDataB);
-matrixViewB.x += matrixViewA.getWidth();
-matrixViewB.y -= matrixViewB.getHeight();
+var matrixDataC = [
+    ['x', 'y'],
+    ['zz', 'w'],
+    ];
+// var matrixDataB = [
+//     [5, 6, 1],
+//     [7, 8, 2],
+//     [1, 2, 3],
+//     [7, 8, 4],
+//     [1, 2, 5],
+//     ];
+var matrixSpacing = 16;
+var matrixViewA = new MatrixView(100, 50, matrixDataA);
+var matrixViewB = new MatrixView(100, 50, matrixDataB);
+var matrixViewC = new MatrixView(100, 50, matrixDataC);
+matrixViewB.x += matrixViewA.getWidth() + matrixSpacing;
+matrixViewC.x += matrixViewA.getWidth() + matrixSpacing;
+matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
+matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
+var dialogueBox = {
+    x: 0,
+    y: matrixViewA.y + matrixViewA.getHeight(),
+    message: 'Hello, David',
+    width: width,
+    height: height,
+    padding: {
+        x: 16,
+        y: 16,
+    },
+};
 
 // **************************************************
 // Draw *********************************************
 // **************************************************
 draw = function() {
-    background(255, 255, 255);
-    fill(81, 207, 245);
-    stroke(81, 207, 245);
+    textFont(monospaceFont, 24);
+    textAlign(RIGHT, BASELINE);
+    background(81, 207, 245);
+    fill(255, 255, 255);
+    stroke(255, 255, 255);
     matrixViewA.draw();
     matrixViewB.draw();
+    matrixViewC.draw();
+
+    // Diagloue box
+    rect(dialogueBox.x, dialogueBox.y, dialogueBox.width, dialogueBox.height);
+    fill(22, 53, 61);
+    // stroke(0, 0, 0);
+    textFont(sansSerifFont, 16);
+    textAlign(LEFT, TOP);
+    text(dialogueBox.message, dialogueBox.x + dialogueBox.padding.x,
+        dialogueBox.y + dialogueBox.padding.x);
 };
