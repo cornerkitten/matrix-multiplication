@@ -10,20 +10,16 @@ var MatrixView = function(x, y, matrixData) {
     this.rowHeight = 48;
     this.columnWidth = 48;
     this.braceConfig_ = this.calculatedBraceConfig();
-    this.highlights_ = [];
 
     var rowCount = this.matrix.length;
     var columnCount = this.matrix[0].length;
-    for (var rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-        this.highlights_[rowIndex] = [];
-        for (var columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-            this.highlights_[rowIndex][columnIndex] = false;
-        }
-    }
 };
 
-MatrixView.prototype.setHighlight = function(row, col, isHighlight) {
-    this.highlights_[row][col] = isHighlight;
+MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
+    return {
+        x: this.x + columnIndex * this.columnWidth + textWidth('00'),
+        y: this.y + rowIndex * this.rowHeight - textAscent() / 3,
+    };
 };
 
 MatrixView.prototype.draw = function() {
@@ -37,20 +33,9 @@ MatrixView.prototype.drawMatrixValues = function() {
         var row = this.matrix[rowIndex];
 
         for (var columnIndex = 0; columnIndex < row.length; columnIndex++) {
-            var value = row[columnIndex];
+            var entry = row[columnIndex];
 
-            if (this.highlights_[rowIndex][columnIndex]) {
-                noStroke();
-                fill(34, 148, 201, 200);
-                ellipse(
-                    this.x + columnIndex * this.columnWidth + textWidth('00'),
-                    this.y + rowIndex * this.rowHeight - textAscent() / 3,
-                    40,
-                    40);
-                stroke(255, 255, 255, 200);
-                fill(255, 255, 255, 200);
-            }
-            text(value,
+            text(entry,
                 this.x + columnIndex * this.columnWidth + textWidth('00'),
                 this.y + rowIndex * this.rowHeight);
         }
@@ -195,9 +180,9 @@ matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewB.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
 
-matrixViewA.setHighlight(0, 0, true);
-matrixViewB.setHighlight(0, 0, true);
-matrixViewC.setHighlight(0, 0, true);
+// matrixViewA.setHighlight(0, 0, true);
+// matrixViewB.setHighlight(0, 0, true);
+// matrixViewC.setHighlight(0, 0, true);
 
 var dialogueBox = {
     x: 0,
@@ -224,6 +209,18 @@ draw = function() {
     textFont(monospaceFont, 24);
     textAlign(CENTER, BASELINE);
     background(81, 207, 245);
+
+    var highlightA = matrixViewA.getEntryPosition(0, 0);
+    var highlightB = matrixViewB.getEntryPosition(0, 0);
+    // var highlightC = matrixViewC.getEntryPosition(0, 0);
+    noStroke();
+    fill(34, 148, 201, 200);
+    ellipse(highlightA.x, highlightA.y, 40, 40);
+    ellipse(highlightB.x, highlightB.y, 40, 40);
+    // ellipse(highlightC.x, highlightC.y, 40, 40);
+    stroke(255, 255, 255, 200);
+    fill(255, 255, 255, 200);
+
     matrixViewA.draw();
     matrixViewB.draw();
     // matrixViewC.draw();
