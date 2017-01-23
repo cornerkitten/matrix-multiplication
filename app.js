@@ -180,25 +180,38 @@ matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewB.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
 
-// matrixViewA.setHighlight(0, 0, true);
-// matrixViewB.setHighlight(0, 0, true);
-// matrixViewC.setHighlight(0, 0, true);
+// var dialogueBox = {
+//     x: 0,
+//     y: matrixViewA.y + matrixViewA.getHeight() + 50 - 16,
+//     message: 42, //
+//     width: width,
+//     height: height,
+//     padding: {
+//         x: 16,
+//         y: 16,
+//     },
+// };
 
-var dialogueBox = {
-    x: 0,
-    y: matrixViewA.y + matrixViewA.getHeight() + 50 - 16,
-    message: 42, //
-    width: width,
-    height: height,
-    padding: {
-        x: 16,
-        y: 16,
-    },
-};
 var tweener = new Tweener();
-// tweener.to(dialogueBox, 3000, 'message', 4200);
-tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y -
-    matrixViewB.getHeight() - matrixSpacing);
+
+var scenes = [
+    function() {
+        tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y -
+            matrixViewB.getHeight() - matrixSpacing);
+    },
+    function() {
+        tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y +
+            matrixViewB.getHeight() + matrixSpacing);
+    },
+];
+var currentScene = 0;
+
+mouseClicked = function() {
+    if (currentScene < scenes.length) {
+        scenes[currentScene]();
+        currentScene++;
+    }
+};
 
 // *************************************************************
 // Draw ********************************************************
