@@ -193,15 +193,27 @@ var sansSerifFont = createFont('sans-serif');
 textFont(monospaceFont, 24);
 textAlign(CENTER);
 
-var drawConfig = {
-    text: {
-        font: monospaceFont,
-        size: 24,
-        halign: CENTER,
-        valign: BASELINE,
-    },
+var textConfig = {
+    font: monospaceFont,
+    size: 24,
+    halign: CENTER,
+    valign: BASELINE,
+};
+
+var drawConfigA = {
+    text: textConfig,
     strokeColor: { h: 255, s: 255, b: 255, a: 200 },
     fillColor: { h: 255, s: 255, b: 255, a: 200 },
+};
+var drawConfigB = {
+    text: textConfig,
+    strokeColor: { h: 255, s: 255, b: 255, a: 200 },
+    fillColor: { h: 255, s: 255, b: 255, a: 200 },
+};
+var drawConfigC = {
+    text: textConfig,
+    strokeColor: { h: 255, s: 255, b: 255, a: 0 },
+    fillColor: { h: 255, s: 255, b: 255, a: 0 },
 };
 
 var matrixDataA = [
@@ -213,8 +225,8 @@ var matrixDataB = [
     [7, 8],
     ];
 var matrixDataC = [
-    ['x', 'yy'],
-    ['zz', 'w'],
+    ['', ''],
+    ['', ''],
     ];
 // var matrixDataB = [
 //     [5, 6, 1],
@@ -224,15 +236,16 @@ var matrixDataC = [
 //     [1, 2, 5],
 //     ];
 var matrixSpacing = 16;
-var matrixViewA = new MatrixView(75, 100, matrixDataA, drawConfig);
-var matrixViewB = new MatrixView(75, 100, matrixDataB, drawConfig);
-var matrixViewC = new MatrixView(75, 100, matrixDataC, drawConfig);
+var matrixViewA = new MatrixView(75, 100, matrixDataA, drawConfigA);
+var matrixViewB = new MatrixView(75, 100, matrixDataB, drawConfigB);
+var matrixViewC = new MatrixView(75, 100, matrixDataC, drawConfigC);
 matrixViewB.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewC.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewB.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
 var highlightA = new Highlight(0, 0, 40);
+var highlightB = new Highlight(0, 0, 40);
 
 var tweener = new Tweener();
 
@@ -242,20 +255,30 @@ var scenes = [
             matrixViewB.getHeight() - matrixSpacing);
     },
     function() {
+        tweener.to(matrixViewC.drawConfig.fillColor, 300 * 5, 'a', 200);
+        tweener.to(matrixViewC.drawConfig.strokeColor, 300 * 5, 'a', 200);
+    },
+    function() {
         var position = matrixViewA.getEntryPosition(0, 0);
         highlightA.x = position.x;
         highlightA.y = position.y;
         tweener.to(highlightA.drawConfig.fillColor, 300 * 5, 'a', 255);
     },
     function() {
-        tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y +
-            matrixViewB.getHeight() + matrixSpacing);
+        var position = matrixViewB.getEntryPosition(0, 0);
+        highlightB.x = position.x;
+        highlightB.y = position.y;
+        tweener.to(highlightB.drawConfig.fillColor, 300 * 5, 'a', 255);
     },
-    function() {
-        tweener.to(matrixViewB.drawConfig.fillColor, 300 * 5, 'a', 0);
-        tweener.to(matrixViewB.drawConfig.strokeColor, 300 * 5, 'a', 0);
-        tweener.to(highlightA.drawConfig.fillColor, 300 * 5, 'a', 0);
-    }
+    // function() {
+    //     tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y +
+    //         matrixViewB.getHeight() + matrixSpacing);
+    // },
+    // function() {
+    //     tweener.to(matrixViewB.drawConfig.fillColor, 300 * 5, 'a', 0);
+    //     tweener.to(matrixViewB.drawConfig.strokeColor, 300 * 5, 'a', 0);
+    //     tweener.to(highlightA.drawConfig.fillColor, 300 * 5, 'a', 0);
+    // }
 ];
 var currentScene = 0;
 
@@ -275,7 +298,8 @@ draw = function() {
     background(81, 207, 245);
 
     highlightA.draw();
+    highlightB.draw();
     matrixViewA.draw();
     matrixViewB.draw();
-    // matrixViewC.draw();
+    matrixViewC.draw();
 };
