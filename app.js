@@ -39,14 +39,14 @@ MatrixView.prototype.drawMatrixValues = function() {
 
             if (this.highlights_[rowIndex][columnIndex]) {
                 noStroke();
-                fill(74, 110, 148);
+                fill(34, 148, 201, 200);
                 ellipse(
-                    this.x + columnIndex * this.columnWidth + textWidth('0'),
-                    this.y + rowIndex * this.rowHeight - textAscent() / 4,
+                    this.x + columnIndex * this.columnWidth + textWidth('00'),
+                    this.y + rowIndex * this.rowHeight - textAscent() / 3,
                     40,
                     40);
-                stroke(255, 255, 255);
-                fill(255, 255, 255);
+                stroke(255, 255, 255, 200);
+                fill(255, 255, 255, 200);
             }
             text(value,
                 this.x + columnIndex * this.columnWidth + textWidth('00'),
@@ -64,13 +64,13 @@ MatrixView.prototype.drawBrace = function(isLeftBracket) {
     var bracePosition;
     if (isLeftBracket) {
         bracePosition = {
-            x: this.x - width - textWidth('0') / 2,
+            x: this.x - width,
             y: this.y - textAscent() * 1.5,
         };
     } else {
         bracePosition = {
             x: this.x + columnCount * this.columnWidth +
-                width - textWidth('0'),
+                width,
             y: this.y - textAscent() * 1.5,
         };
     }
@@ -120,7 +120,7 @@ MatrixView.prototype.calculatedBraceConfig = function() {
 var monospaceFont = createFont('monospace');
 var sansSerifFont = createFont('sans-serif');
 textFont(monospaceFont, 24);
-textAlign(RIGHT);
+textAlign(CENTER);
 
 var matrixDataA = [
     [1, 2],
@@ -142,13 +142,17 @@ var matrixDataC = [
 //     [1, 2, 5],
 //     ];
 var matrixSpacing = 16;
-var matrixViewA = new MatrixView(100, 50, matrixDataA);
-var matrixViewB = new MatrixView(100, 50, matrixDataB);
-var matrixViewC = new MatrixView(100, 50, matrixDataC);
+var matrixViewA = new MatrixView(75, 100, matrixDataA);
+var matrixViewB = new MatrixView(75, 100, matrixDataB);
+var matrixViewC = new MatrixView(75, 100, matrixDataC);
 matrixViewB.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewC.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
+
+matrixViewA.setHighlight(0, 0, true);
+matrixViewC.setHighlight(1, 0, true);
+
 var dialogueBox = {
     x: 0,
     y: matrixViewA.y + matrixViewA.getHeight() + 50 - 16,
@@ -166,21 +170,23 @@ var dialogueBox = {
 // **************************************************
 draw = function() {
     textFont(monospaceFont, 24);
-    textAlign(RIGHT, BASELINE);
+    textAlign(CENTER, BASELINE);
     background(81, 207, 245);
-    matrixViewA.setHighlight(0, 0, true);
     matrixViewA.draw();
     matrixViewB.draw();
     matrixViewC.draw();
 
     // Diagloue box
-    fill(255, 255, 255);
-    stroke(255, 255, 255);
+    /*
+    fill(255, 255, 255, 200);
+    noStroke();
     rect(dialogueBox.x, dialogueBox.y, dialogueBox.width, dialogueBox.height);
     fill(22, 53, 61);
+    stroke(255, 255, 255, 200);
     // stroke(0, 0, 0);
     textFont(sansSerifFont, 16);
     textAlign(LEFT, TOP);
     text(dialogueBox.message, dialogueBox.x + dialogueBox.padding.x,
         dialogueBox.y + dialogueBox.padding.x);
+    */
 };
