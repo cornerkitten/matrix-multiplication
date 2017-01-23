@@ -61,12 +61,12 @@ MatrixView.prototype.applyDrawConfig = function() {
 
     textFont(myText.font, myText.size);
     textAlign(myText.halign, myText.valign);
-    stroke(strokeColor.h,
-        strokeColor.s,
+    stroke(strokeColor.r,
+        strokeColor.g,
         strokeColor.b,
         strokeColor.a);
-    fill(fillColor.h,
-        fillColor.s,
+    fill(fillColor.r,
+        fillColor.g,
         fillColor.b,
         fillColor.a);
 };
@@ -146,6 +146,52 @@ MatrixView.prototype.calculatedBraceConfig = function() {
 
 
 // *************************************************************
+// Highlight class *********************************************
+// *************************************************************
+var Highlight = function(x, y, radius) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.drawConfig = {
+        fillColor: { r: 34, g: 148, b: 201, a: 0 },
+    };
+};
+
+Highlight.prototype.draw = function() {
+    var fillColor = this.drawConfig.fillColor;
+
+    fill(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
+    noStroke();
+    ellipse(this.x, this.y, this.radius, this.radius);
+};
+
+
+// *************************************************************
+// Dialogue class **********************************************
+// *************************************************************
+var Dialogue = function(x, y, message, drawConfig) {
+    this.x = x;
+    this.y = y;
+    this.message = message || '';
+    this.drawConfig = drawConfig;
+};
+
+Dialogue.prototype.draw = function() {
+    this.applyDrawConfig();
+    text(this.message, this.x, this.y);
+};
+
+Dialogue.prototype.applyDrawConfig = function() {
+    var myText = this.drawConfig.text;
+    var fillColor = this.drawConfig.fillColor;
+
+    textFont(myText.font, myText.size);
+    fill(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
+    textAlign(myText.halign, myText.valign);
+};
+
+
+// *************************************************************
 // Tweener class ***********************************************
 // *************************************************************
 var Tweener = function() {
@@ -189,28 +235,7 @@ Tweener.prototype.update = function() {
 
 
 // *************************************************************
-// Highlight class *********************************************
-// *************************************************************
-var Highlight = function(x, y, radius) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.drawConfig = {
-        fillColor: { r: 34, g: 148, b: 201, a: 0 },
-    };
-};
-
-Highlight.prototype.draw = function() {
-    var fillColor = this.drawConfig.fillColor;
-
-    fill(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
-    noStroke();
-    ellipse(this.x, this.y, this.radius, this.radius);
-};
-
-
-// *************************************************************
-// Text setup **************************************************
+// Text property setup *****************************************
 // *************************************************************
 var monospaceFont = createFont('monospace');
 var sansSerifFont = createFont('sans-serif');
@@ -230,18 +255,18 @@ var textConfig = {
 // *************************************************************
 var drawConfigA = {
     text: textConfig,
-    strokeColor: { h: 255, s: 255, b: 255, a: 200 },
-    fillColor: { h: 255, s: 255, b: 255, a: 200 },
+    strokeColor: { r: 255, g: 255, b: 255, a: 200 },
+    fillColor: { r: 255, g: 255, b: 255, a: 200 },
 };
 var drawConfigB = {
     text: textConfig,
-    strokeColor: { h: 255, s: 255, b: 255, a: 200 },
-    fillColor: { h: 255, s: 255, b: 255, a: 200 },
+    strokeColor: { r: 255, g: 255, b: 255, a: 200 },
+    fillColor: { r: 255, g: 255, b: 255, a: 200 },
 };
 var drawConfigC = {
     text: textConfig,
-    strokeColor: { h: 255, s: 255, b: 255, a: 0 },
-    fillColor: { h: 255, s: 255, b: 255, a: 0 },
+    strokeColor: { r: 255, g: 255, b: 255, a: 0 },
+    fillColor: { r: 255, g: 255, b: 255, a: 0 },
 };
 
 var matrixDataA = [
@@ -265,35 +290,49 @@ matrixViewC.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewB.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
+
 var highlightA = new Highlight(0, 0, 40);
 var highlightB = new Highlight(0, 0, 40);
+var dialogue = new Dialogue(32, height * 3 / 4, [
+        'We have two matrices',
+    ],
+    {
+    text: {
+        font: sansSerifFont,
+        size: 24,
+        halign: LEFT,
+        valign: BASELINE,
+    },
+    fillColor: { r: 255, g: 255, b: 255, a: 200 },
+});
 
 
 // *************************************************************
 // Scene management ********************************************
 // *************************************************************
 var tweener = new Tweener();
+var BASE_DURATION = 300;
 
 var scenes = [
     function() {
-        tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y -
+        tweener.to(matrixViewB, BASE_DURATION, 'y', matrixViewB.y -
             matrixViewB.getHeight() - matrixSpacing);
     },
     function() {
-        tweener.to(matrixViewC.drawConfig.fillColor, 300 * 5, 'a', 200);
-        tweener.to(matrixViewC.drawConfig.strokeColor, 300 * 5, 'a', 200);
+        tweener.to(matrixViewC.drawConfig.fillColor, BASE_DURATION, 'a', 200);
+        tweener.to(matrixViewC.drawConfig.strokeColor, BASE_DURATION, 'a', 200);
     },
     function() {
         var position = matrixViewA.getEntryPosition(0, 0);
         highlightA.x = position.x;
         highlightA.y = position.y;
-        tweener.to(highlightA.drawConfig.fillColor, 300 * 5, 'a', 255);
+        tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
         var position = matrixViewB.getEntryPosition(0, 0);
         highlightB.x = position.x;
         highlightB.y = position.y;
-        tweener.to(highlightB.drawConfig.fillColor, 300 * 5, 'a', 255);
+        tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
 ];
 var currentScene = 0;
@@ -318,4 +357,5 @@ draw = function() {
     matrixViewA.draw();
     matrixViewB.draw();
     matrixViewC.draw();
+    dialogue.draw();
 };
