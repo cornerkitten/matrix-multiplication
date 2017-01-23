@@ -1,4 +1,28 @@
-// TODO Replace arrow functions with anonymous functions
+// *************************************************************
+// Matrix Multiplication
+// -------------------------------------------------------------
+// Background:  When I was learning about matrices in high
+//   school, our textbook would only *describe* how to perform
+//   matrix multiplication.  Something about matching this row
+//   wih that column, then match this thing with that thing,
+//   etc.  Oh, and make sure the sizes are compatible by this
+//   rule and that.  Bleh.
+//
+//   Instead, the process can be simplified visually if you
+//   line up AxB so that A sits to the left of the result
+//   and B sits above the result.  At this point, you no
+//   longer need to count rows/columns.  Instead, just look
+//   for where the row from A and column from B line up,
+//   for each value in the result matrix.
+//
+//   This approach is nothing new, but it's often overlooked.
+//   So, I thought I would share it, since it has helped me
+//   and my classmates throughout high school and college.
+//
+// Best,
+// Sam (aka CornerKitten)
+// *************************************************************
+
 
 // *************************************************************
 // MatrixView class ********************************************
@@ -186,7 +210,7 @@ Highlight.prototype.draw = function() {
 
 
 // *************************************************************
-// Setup *******************************************************
+// Text setup **************************************************
 // *************************************************************
 var monospaceFont = createFont('monospace');
 var sansSerifFont = createFont('sans-serif');
@@ -200,6 +224,10 @@ var textConfig = {
     valign: BASELINE,
 };
 
+
+// *************************************************************
+// Matrix setup ************************************************
+// *************************************************************
 var drawConfigA = {
     text: textConfig,
     strokeColor: { h: 255, s: 255, b: 255, a: 200 },
@@ -228,13 +256,6 @@ var matrixDataC = [
     ['', ''],
     ['', ''],
     ];
-// var matrixDataB = [
-//     [5, 6, 1],
-//     [7, 8, 2],
-//     [1, 2, 3],
-//     [7, 8, 4],
-//     [1, 2, 5],
-//     ];
 var matrixSpacing = 16;
 var matrixViewA = new MatrixView(75, 100, matrixDataA, drawConfigA);
 var matrixViewB = new MatrixView(75, 100, matrixDataB, drawConfigB);
@@ -247,6 +268,10 @@ matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
 var highlightA = new Highlight(0, 0, 40);
 var highlightB = new Highlight(0, 0, 40);
 
+
+// *************************************************************
+// Scene management ********************************************
+// *************************************************************
 var tweener = new Tweener();
 
 var scenes = [
@@ -270,15 +295,6 @@ var scenes = [
         highlightB.y = position.y;
         tweener.to(highlightB.drawConfig.fillColor, 300 * 5, 'a', 255);
     },
-    // function() {
-    //     tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y +
-    //         matrixViewB.getHeight() + matrixSpacing);
-    // },
-    // function() {
-    //     tweener.to(matrixViewB.drawConfig.fillColor, 300 * 5, 'a', 0);
-    //     tweener.to(matrixViewB.drawConfig.strokeColor, 300 * 5, 'a', 0);
-    //     tweener.to(highlightA.drawConfig.fillColor, 300 * 5, 'a', 0);
-    // }
 ];
 var currentScene = 0;
 
