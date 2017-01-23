@@ -9,7 +9,7 @@ var MatrixView = function(x, y, matrixData) {
     this.y = y;
     this.rowHeight = 48;
     this.columnWidth = 48;
-    this.braceConfig = this.calculatedBraceConfig();
+    this.braceConfig_ = this.calculatedBraceConfig();
     this.highlights_ = [];
 
     var rowCount = this.matrix.length;
@@ -59,9 +59,9 @@ MatrixView.prototype.drawMatrixValues = function() {
 
 MatrixView.prototype.drawBrace = function(isLeftBracket) {
     var columnCount = this.matrix[0].length;
-    var thickness = this.braceConfig.thickness;
-    var height = this.braceConfig.height;
-    var width = this.braceConfig.width;
+    var thickness = this.braceConfig_.thickness;
+    var height = this.braceConfig_.height;
+    var width = this.braceConfig_.width;
 
     var bracePosition;
     if (isLeftBracket) {
@@ -98,15 +98,15 @@ MatrixView.prototype.drawBrace = function(isLeftBracket) {
 
 MatrixView.prototype.getWidth = function() {
     var columnCount = this.matrix[0].length;
-    return columnCount * this.columnWidth + this.braceConfig.width * 2 -
-        textWidth('0') / 2 + this.braceConfig.thickness;
+    return columnCount * this.columnWidth + this.braceConfig_.width * 2 -
+        textWidth('0') / 2 + this.braceConfig_.thickness;
 };
 
 MatrixView.prototype.getHeight = function() {
-    return this.braceConfig.height + this.braceConfig.thickness;
+    return this.braceConfig_.height + this.braceConfig_.thickness;
 };
 
-// Should be used to update `this.braceConfig` whenever
+// Should be used to update `this.braceConfig_` whenever
 // font size or matrix size changes
 MatrixView.prototype.calculatedBraceConfig = function() {
     return {
