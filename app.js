@@ -120,6 +120,7 @@ MatrixView.prototype.calculatedBraceConfig = function() {
     };
 };
 
+
 // *************************************************************
 // Tweener class ***********************************************
 // *************************************************************
@@ -161,6 +162,28 @@ Tweener.prototype.update = function() {
 
     this.tweens = remainingTweens;
 };
+
+
+// *************************************************************
+// Highlight class *********************************************
+// *************************************************************
+var Highlight = function(x, y, radius) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.drawConfig = {
+        fillColor: { r: 34, g: 148, b: 201, a: 0 },
+    };
+};
+
+Highlight.prototype.draw = function() {
+    var fillColor = this.drawConfig.fillColor;
+
+    fill(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
+    noStroke();
+    ellipse(this.x, this.y, this.radius, this.radius);
+};
+
 
 // *************************************************************
 // Setup *******************************************************
@@ -209,18 +232,7 @@ matrixViewC.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewB.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
-
-// var dialogueBox = {
-//     x: 0,
-//     y: matrixViewA.y + matrixViewA.getHeight() + 50 - 16,
-//     message: 42, //
-//     width: width,
-//     height: height,
-//     padding: {
-//         x: 16,
-//         y: 16,
-//     },
-// };
+var highlightA = new Highlight(0, 0, 40);
 
 var tweener = new Tweener();
 
@@ -230,12 +242,19 @@ var scenes = [
             matrixViewB.getHeight() - matrixSpacing);
     },
     function() {
+        var position = matrixViewA.getEntryPosition(0, 0);
+        highlightA.x = position.x;
+        highlightA.y = position.y;
+        tweener.to(highlightA.drawConfig.fillColor, 300 * 5, 'a', 255);
+    },
+    function() {
         tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y +
             matrixViewB.getHeight() + matrixSpacing);
     },
     function() {
         tweener.to(matrixViewB.drawConfig.fillColor, 300 * 5, 'a', 0);
         tweener.to(matrixViewB.drawConfig.strokeColor, 300 * 5, 'a', 0);
+        tweener.to(highlightA.drawConfig.fillColor, 300 * 5, 'a', 0);
     }
 ];
 var currentScene = 0;
@@ -247,6 +266,7 @@ mouseClicked = function() {
     }
 };
 
+
 // *************************************************************
 // Draw ********************************************************
 // *************************************************************
@@ -254,28 +274,8 @@ draw = function() {
     tweener.update();
     background(81, 207, 245);
 
-    var highlightA = matrixViewA.getEntryPosition(0, 0);
-    var highlightB = matrixViewB.getEntryPosition(0, 0);
-    // var highlightC = matrixViewC.getEntryPosition(0, 0);
-    noStroke();
-    fill(34, 148, 201, 200);
-    ellipse(highlightA.x, highlightA.y, 40, 40);
-    ellipse(highlightB.x, highlightB.y, 40, 40);
-    // ellipse(highlightC.x, highlightC.y, 40, 40);
-
+    highlightA.draw();
     matrixViewA.draw();
     matrixViewB.draw();
     // matrixViewC.draw();
-
-    // Diagloue box
-    // fill(255, 255, 255, 200);
-    // noStroke();
-    // rect(dialogueBox.x, dialogueBox.y, dialogueBox.width, dialogueBox.height);
-    // fill(22, 53, 61);
-    // stroke(255, 255, 255, 200);
-    // // stroke(0, 0, 0);
-    // textFont(sansSerifFont, 16);
-    // textAlign(LEFT, TOP);
-    // text(dialogueBox.message, dialogueBox.x + dialogueBox.padding.x,
-    //     dialogueBox.y + dialogueBox.padding.x);
 };
