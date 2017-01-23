@@ -169,16 +169,23 @@ Highlight.prototype.draw = function() {
 // *************************************************************
 // Dialogue class **********************************************
 // *************************************************************
-var Dialogue = function(x, y, message, drawConfig) {
+var Dialogue = function(x, y, message, width, height, padding, drawConfig) {
     this.x = x;
     this.y = y;
     this.message = message || '';
+    this.width = width;
+    this.height = height;
+    this.padding = padding;
     this.drawConfig = drawConfig;
 };
 
 Dialogue.prototype.draw = function() {
     this.applyDrawConfig();
-    text(this.message, this.x, this.y);
+    text(this.message,
+        this.x + this.padding,
+        this.y,
+        this.width - this.padding * 2,
+        this.height);
 };
 
 Dialogue.prototype.applyDrawConfig = function() {
@@ -195,12 +202,10 @@ Dialogue.prototype.applyDrawConfig = function() {
 // Tweener class ***********************************************
 // *************************************************************
 var Tweener = function() {
-    // TODO
     this.tweens = [];
 };
 
 Tweener.prototype.to = function(parent, duration, key, value) {
-    // TODO
     var now = millis();
 
     this.tweens.push({
@@ -293,18 +298,22 @@ matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
 
 var highlightA = new Highlight(0, 0, 40);
 var highlightB = new Highlight(0, 0, 40);
-var dialogue = new Dialogue(32, height * 3 / 4, [
-        'We have two matrices',
-    ],
+var dialogue = new Dialogue(
+    0,
+    height * 3 / 4,
+    'We have two matrices',
+    width,
+    height,
+    32,
     {
-    text: {
-        font: sansSerifFont,
-        size: 24,
-        halign: LEFT,
-        valign: BASELINE,
-    },
-    fillColor: { r: 255, g: 255, b: 255, a: 200 },
-});
+        text: {
+            font: sansSerifFont,
+            size: 24,
+            halign: LEFT,
+            valign: BASELINE,
+        },
+        fillColor: { r: 255, g: 255, b: 255, a: 200 },
+    });
 
 
 // *************************************************************
@@ -315,12 +324,21 @@ var BASE_DURATION = 300;
 
 var scenes = [
     function() {
+        dialogue.message = 'Instead of counting rows and columns for the product...';
+    },
+    function() {
+        dialogue.message = 'We can just align the second matrix like so';
         tweener.to(matrixViewB, BASE_DURATION, 'y', matrixViewB.y -
             matrixViewB.getHeight() - matrixSpacing);
     },
     function() {
+        dialogue.message = 'Then add a matrix where the product goes';
         tweener.to(matrixViewC.drawConfig.fillColor, BASE_DURATION, 'a', 200);
         tweener.to(matrixViewC.drawConfig.strokeColor, BASE_DURATION, 'a', 200);
+    },
+    function() {
+        dialogue.message = 'Now, we want to determine the first value';
+        // TODO Highlight placeholder for first value
     },
     function() {
         var position = matrixViewA.getEntryPosition(0, 0);
