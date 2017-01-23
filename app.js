@@ -8,6 +8,20 @@ var MatrixView = function(x, y, matrixData) {
     this.rowHeight = 48;
     this.columnWidth = 48;
     this.braceConfig = this.calculatedBraceConfig();
+    this.highlights_ = [];
+
+    var rowCount = this.matrix.length;
+    var columnCount = this.matrix[0].length;
+    for (var rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+        this.highlights_[rowIndex] = [];
+        for (var columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+            this.highlights_[rowIndex][columnIndex] = false;
+        }
+    }
+};
+
+MatrixView.prototype.setHighlight = function(row, col, isHighlight) {
+    this.highlights_[row][col] = isHighlight;
 };
 
 MatrixView.prototype.draw = function() {
@@ -22,6 +36,18 @@ MatrixView.prototype.drawMatrixValues = function() {
 
         for (var columnIndex = 0; columnIndex < row.length; columnIndex++) {
             var value = row[columnIndex];
+
+            if (this.highlights_[rowIndex][columnIndex]) {
+                noStroke();
+                fill(74, 110, 148);
+                ellipse(
+                    this.x + columnIndex * this.columnWidth + textWidth('0'),
+                    this.y + rowIndex * this.rowHeight - textAscent() / 4,
+                    40,
+                    40);
+                stroke(255, 255, 255);
+                fill(255, 255, 255);
+            }
             text(value,
                 this.x + columnIndex * this.columnWidth + textWidth('00'),
                 this.y + rowIndex * this.rowHeight);
@@ -125,8 +151,8 @@ matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
 var dialogueBox = {
     x: 0,
-    y: matrixViewA.y + matrixViewA.getHeight(),
-    message: 'Hello, David',
+    y: matrixViewA.y + matrixViewA.getHeight() + 50 - 16,
+    message: '', //
     width: width,
     height: height,
     padding: {
@@ -142,13 +168,14 @@ draw = function() {
     textFont(monospaceFont, 24);
     textAlign(RIGHT, BASELINE);
     background(81, 207, 245);
-    fill(255, 255, 255);
-    stroke(255, 255, 255);
+    matrixViewA.setHighlight(0, 0, true);
     matrixViewA.draw();
     matrixViewB.draw();
     matrixViewC.draw();
 
     // Diagloue box
+    fill(255, 255, 255);
+    stroke(255, 255, 255);
     rect(dialogueBox.x, dialogueBox.y, dialogueBox.width, dialogueBox.height);
     fill(22, 53, 61);
     // stroke(0, 0, 0);
