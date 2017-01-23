@@ -3,12 +3,13 @@
 // *************************************************************
 // MatrixView class ********************************************
 // *************************************************************
-var MatrixView = function(x, y, matrixData) {
+var MatrixView = function(x, y, matrixData, drawConfig) {
     this.matrix = matrixData;
     this.x = x;
     this.y = y;
     this.rowHeight = 48;
     this.columnWidth = 48;
+    this.drawConfig = drawConfig;
     this.braceConfig_ = this.calculatedBraceConfig();
 
     var rowCount = this.matrix.length;
@@ -23,9 +24,27 @@ MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
 };
 
 MatrixView.prototype.draw = function() {
+    this.applyDrawConfig();
     this.drawBrace(true);
     this.drawBrace(false);
     this.drawMatrixValues();
+};
+
+MatrixView.prototype.applyDrawConfig = function() {
+    var myText = this.drawConfig.text;
+    var strokeColor = this.drawConfig.strokeColor;
+    var fillColor = this.drawConfig.fillColor;
+
+    textFont(myText.font, myText.size);
+    textAlign(myText.halign, myText.valign);
+    stroke(strokeColor.h,
+        strokeColor.s,
+        strokeColor.b,
+        strokeColor.a);
+    fill(fillColor.h,
+        fillColor.s,
+        fillColor.b,
+        fillColor.a);
 };
 
 MatrixView.prototype.drawMatrixValues = function() {
@@ -151,6 +170,17 @@ var sansSerifFont = createFont('sans-serif');
 textFont(monospaceFont, 24);
 textAlign(CENTER);
 
+var drawConfig = {
+    text: {
+        font: monospaceFont,
+        size: 24,
+        halign: CENTER,
+        valign: BASELINE,
+    },
+    strokeColor: { h: 255, s: 255, b: 255, a: 200 },
+    fillColor: { h: 255, s: 255, b: 255, a: 200 },
+};
+
 var matrixDataA = [
     [1, 2],
     [3, 4],
@@ -171,9 +201,9 @@ var matrixDataC = [
 //     [1, 2, 5],
 //     ];
 var matrixSpacing = 16;
-var matrixViewA = new MatrixView(75, 100, matrixDataA);
-var matrixViewB = new MatrixView(75, 100, matrixDataB);
-var matrixViewC = new MatrixView(75, 100, matrixDataC);
+var matrixViewA = new MatrixView(75, 100, matrixDataA, drawConfig);
+var matrixViewB = new MatrixView(75, 100, matrixDataB, drawConfig);
+var matrixViewC = new MatrixView(75, 100, matrixDataC, drawConfig);
 matrixViewB.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewC.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
@@ -203,6 +233,10 @@ var scenes = [
         tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y +
             matrixViewB.getHeight() + matrixSpacing);
     },
+    function() {
+        tweener.to(matrixViewB.drawConfig.fillColor, 300 * 5, 'a', 0);
+        tweener.to(matrixViewB.drawConfig.strokeColor, 300 * 5, 'a', 0);
+    }
 ];
 var currentScene = 0;
 
@@ -218,9 +252,6 @@ mouseClicked = function() {
 // *************************************************************
 draw = function() {
     tweener.update();
-
-    textFont(monospaceFont, 24);
-    textAlign(CENTER, BASELINE);
     background(81, 207, 245);
 
     var highlightA = matrixViewA.getEntryPosition(0, 0);
@@ -231,8 +262,6 @@ draw = function() {
     ellipse(highlightA.x, highlightA.y, 40, 40);
     ellipse(highlightB.x, highlightB.y, 40, 40);
     // ellipse(highlightC.x, highlightC.y, 40, 40);
-    stroke(255, 255, 255, 200);
-    fill(255, 255, 255, 200);
 
     matrixViewA.draw();
     matrixViewB.draw();
