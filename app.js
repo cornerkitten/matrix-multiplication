@@ -1,6 +1,8 @@
-// **************************************************
-// MatrixView class *********************************
-// **************************************************
+// TODO Replace arrow functions with anonymous functions
+
+// *************************************************************
+// MatrixView class ********************************************
+// *************************************************************
 var MatrixView = function(x, y, matrixData) {
     this.matrix = matrixData;
     this.x = x;
@@ -114,9 +116,51 @@ MatrixView.prototype.calculatedBraceConfig = function() {
     };
 };
 
-// **************************************************
-// Setup ********************************************
-// **************************************************
+// *************************************************************
+// Tweener class ***********************************************
+// *************************************************************
+var Tweener = function() {
+    // TODO
+    this.tweens = [];
+};
+
+Tweener.prototype.to = function(parent, duration, key, value) {
+    // TODO
+    var now = millis();
+
+    this.tweens.push({
+        parent: parent,
+        duration: duration,
+        key: key,
+        startValue: parent[key],
+        diffValue: value - parent[key],
+        startTime: now,
+    });
+};
+
+Tweener.prototype.update = function() {
+    // TODO
+    var now = millis();
+    var remainingTweens = [];
+
+    this.tweens.forEach(function(tween) {
+        var fractionComplete = (now - tween.startTime) / tween.duration;
+
+        if (fractionComplete > 1) {
+            tween.parent[tween.key] = tween.startValue + tween.diffValue;
+        } else {
+            tween.parent[tween.key] = tween.startValue +
+                tween.diffValue * fractionComplete;
+            remainingTweens.push(tween);
+        }
+    });
+
+    this.tweens = remainingTweens;
+};
+
+// *************************************************************
+// Setup *******************************************************
+// *************************************************************
 var monospaceFont = createFont('monospace');
 var sansSerifFont = createFont('sans-serif');
 textFont(monospaceFont, 24);
@@ -131,7 +175,7 @@ var matrixDataB = [
     [7, 8],
     ];
 var matrixDataC = [
-    ['x', 'y'],
+    ['x', 'yy'],
     ['zz', 'w'],
     ];
 // var matrixDataB = [
@@ -148,15 +192,17 @@ var matrixViewC = new MatrixView(75, 100, matrixDataC);
 matrixViewB.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewC.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
+matrixViewB.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
 
 matrixViewA.setHighlight(0, 0, true);
-matrixViewC.setHighlight(1, 0, true);
+matrixViewB.setHighlight(0, 0, true);
+matrixViewC.setHighlight(0, 0, true);
 
 var dialogueBox = {
     x: 0,
     y: matrixViewA.y + matrixViewA.getHeight() + 50 - 16,
-    message: '', //
+    message: 42, //
     width: width,
     height: height,
     padding: {
@@ -164,29 +210,33 @@ var dialogueBox = {
         y: 16,
     },
 };
+var tweener = new Tweener();
+// tweener.to(dialogueBox, 3000, 'message', 4200);
+tweener.to(matrixViewB, 300 * 5, 'y', matrixViewB.y -
+    matrixViewB.getHeight() - matrixSpacing);
 
-// **************************************************
-// Draw *********************************************
-// **************************************************
+// *************************************************************
+// Draw ********************************************************
+// *************************************************************
 draw = function() {
+    tweener.update();
+
     textFont(monospaceFont, 24);
     textAlign(CENTER, BASELINE);
     background(81, 207, 245);
     matrixViewA.draw();
     matrixViewB.draw();
-    matrixViewC.draw();
+    // matrixViewC.draw();
 
     // Diagloue box
-    /*
-    fill(255, 255, 255, 200);
-    noStroke();
-    rect(dialogueBox.x, dialogueBox.y, dialogueBox.width, dialogueBox.height);
-    fill(22, 53, 61);
-    stroke(255, 255, 255, 200);
-    // stroke(0, 0, 0);
-    textFont(sansSerifFont, 16);
-    textAlign(LEFT, TOP);
-    text(dialogueBox.message, dialogueBox.x + dialogueBox.padding.x,
-        dialogueBox.y + dialogueBox.padding.x);
-    */
+    // fill(255, 255, 255, 200);
+    // noStroke();
+    // rect(dialogueBox.x, dialogueBox.y, dialogueBox.width, dialogueBox.height);
+    // fill(22, 53, 61);
+    // stroke(255, 255, 255, 200);
+    // // stroke(0, 0, 0);
+    // textFont(sansSerifFont, 16);
+    // textAlign(LEFT, TOP);
+    // text(dialogueBox.message, dialogueBox.x + dialogueBox.padding.x,
+    //     dialogueBox.y + dialogueBox.padding.x);
 };
