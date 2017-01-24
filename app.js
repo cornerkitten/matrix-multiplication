@@ -40,13 +40,6 @@ var MatrixView = function(x, y, matrixData, drawConfig) {
     var columnCount = this.matrix[0].length;
 };
 
-MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
-    return {
-        x: this.x + columnIndex * this.columnWidth + textWidth('00'),
-        y: this.y + rowIndex * this.rowHeight - textAscent() / 3,
-    };
-};
-
 MatrixView.prototype.draw = function() {
     this.applyDrawConfig();
     this.drawBrace(true);
@@ -142,6 +135,17 @@ MatrixView.prototype.calculatedBraceConfig = function() {
         height: textAscent() * 2 + this.rowHeight * (this.matrix.length - 1),
         thickness: 4,
     };
+};
+
+MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
+    return {
+        x: this.x + columnIndex * this.columnWidth + textWidth('00'),
+        y: this.y + rowIndex * this.rowHeight - textAscent() / 3,
+    };
+};
+
+MatrixView.prototype.getEntry = function(rowIndex, columnIndex) {
+    return this.matrix[rowIndex][columnIndex];
 };
 
 
@@ -298,10 +302,11 @@ matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
 
 var highlightA = new Highlight(0, 0, 40);
 var highlightB = new Highlight(0, 0, 40);
+var highlightProduct = new Highlight(0, 0, 40);
 var dialogue = new Dialogue(
     0,
     height * 3 / 4,
-    'We have two matrices',
+    'We have two matrices.',
     width,
     height,
     32,
@@ -314,6 +319,22 @@ var dialogue = new Dialogue(
         },
         fillColor: { r: 255, g: 255, b: 255, a: 200 },
     });
+// var equationDialogue = new Dialogue(
+//     0,
+//     height * 3 / 4 + 64,
+//     '( )',
+//     width,
+//     height,
+//     32,
+//     {
+//         text: {
+//             font: monospaceFont,
+//             size: 24,
+//             halign: LEFT,
+//             valign: BASELINE,
+//         },
+//         fillColor: { r: 255, g: 255, b: 255, a: 200 }
+//     });
 
 
 // *************************************************************
@@ -327,30 +348,54 @@ var scenes = [
         dialogue.message = 'Instead of counting rows and columns for the product...';
     },
     function() {
-        dialogue.message = 'We can just align the second matrix like so';
+        dialogue.message = 'We can just align the second matrix like so.';
         tweener.to(matrixViewB, BASE_DURATION, 'y', matrixViewB.y -
             matrixViewB.getHeight() - matrixSpacing);
     },
     function() {
-        dialogue.message = 'Then add a matrix where the product goes';
+        dialogue.message = 'Then add a matrix where the product goes.';
         tweener.to(matrixViewC.drawConfig.fillColor, BASE_DURATION, 'a', 200);
         tweener.to(matrixViewC.drawConfig.strokeColor, BASE_DURATION, 'a', 200);
     },
     function() {
-        dialogue.message = 'Now, we want to determine the first value';
-        // TODO Highlight placeholder for first value
+        dialogue.message = 'Now, we want to determine the first value.';
+        var position = matrixViewC.getEntryPosition(0, 0);
+        highlightProduct.x = position.x;
+        highlightProduct.y = position.y;
+        tweener.to(highlightProduct.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
+        dialogue.message = 'So, we multiply the first entry on the left...\n(1 x';
         var position = matrixViewA.getEntryPosition(0, 0);
         highlightA.x = position.x;
         highlightA.y = position.y;
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
+        dialogue.message = 'by the top entry above.\n\n(1 x 5)';
         var position = matrixViewB.getEntryPosition(0, 0);
         highlightB.x = position.x;
         highlightB.y = position.y;
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 255);
+    },
+    function() {
+        dialogue.message = 'Then move inward.\n\n(1 x 5) + ';
+    },
+    function() {
+        // TODO Insert matrix value dynamically into string, instead of hard coding
+        dialogue.message += '(2 x ';
+        var position = matrixViewA.getEntryPosition(0, 1);
+        tweener.to(highlightA, BASE_DURATION, 'x', position.x);
+    },
+    function() {
+        // dialogue.message += matrixViewB.getEntry(1, 0) + ')';
+        dialogue.message += matrixViewB.getEntry(1, 0) + ')';
+        var position = matrixViewB.getEntryPosition(1, 0);
+        tweener.to(highlightB, BASE_DURATION, 'y', position.y);
+    },
+    function() {
+        // TODO
+        dialogue.message = 'Which produces\n\n' + '';
     },
 ];
 var currentScene = 0;
@@ -372,6 +417,7 @@ draw = function() {
 
     highlightA.draw();
     highlightB.draw();
+    highlightProduct.draw();
     matrixViewA.draw();
     matrixViewB.draw();
     matrixViewC.draw();
