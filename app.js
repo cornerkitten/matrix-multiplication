@@ -276,7 +276,7 @@ var drawConfigB = {
     strokeColor: { r: 255, g: 255, b: 255, a: 200 },
     fillColor: { r: 255, g: 255, b: 255, a: 200 },
 };
-var drawConfigC = {
+var drawConfigProduct = {
     text: textConfig,
     strokeColor: { r: 255, g: 255, b: 255, a: 0 },
     fillColor: { r: 255, g: 255, b: 255, a: 0 },
@@ -305,19 +305,23 @@ var matrixDataBlank = [
     ['', ''],
     ];
 var matrixSpacing = 16;
-// TODO Consider rename matrixViewA -> matrixA
-var matrixViewA = new MatrixView(75, 100, matrixDataA, drawConfigA);
-var matrixViewB = new MatrixView(75, 100, matrixDataB, drawConfigB);
-var matrixProduct = new MatrixView(75, 100, matrixDataBlank, drawConfigC);
-matrixViewB.x += matrixViewA.getWidth() + matrixSpacing;
-matrixProduct.x += matrixViewA.getWidth() + matrixSpacing;
-matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
-matrixViewB.y += matrixViewB.getHeight() + matrixSpacing;
-matrixProduct.y += matrixViewB.getHeight() + matrixSpacing;
+var matrixA = new MatrixView(75, 100, matrixDataA, drawConfigA);
+var matrixB = new MatrixView(75, 100, matrixDataB, drawConfigB);
+var matrixProduct = new MatrixView(75, 100, matrixDataBlank, drawConfigProduct);
+matrixB.x += matrixA.getWidth() + matrixSpacing;
+matrixProduct.x += matrixA.getWidth() + matrixSpacing;
+matrixA.y += matrixB.getHeight() + matrixSpacing;
+matrixB.y += matrixB.getHeight() + matrixSpacing;
+matrixProduct.y += matrixB.getHeight() + matrixSpacing;
 
 var highlightA = new Highlight(0, 0, 40);
 var highlightB = new Highlight(0, 0, 40);
 var highlightProduct = new Highlight(0, 0, 40);
+
+
+// *************************************************************
+// Dialogue setup **********************************************
+// *************************************************************
 var dialogue = new Dialogue(
     0,
     height * 3 / 4,
@@ -334,7 +338,7 @@ var dialogue = new Dialogue(
         },
         fillColor: { r: 255, g: 255, b: 255, a: 200 },
     });
-var equationDialogue = new Dialogue(
+var equation = new Dialogue(
     0,
     height * 3 / 4 + 56,
     '',
@@ -365,8 +369,8 @@ var scenes = [
     },
     function() {
         dialogue.message = 'We can just align the second matrix like so.';
-        tweener.to(matrixViewB, BASE_DURATION, 'y', matrixViewB.y -
-            matrixViewB.getHeight() - matrixSpacing);
+        tweener.to(matrixB, BASE_DURATION, 'y', matrixB.y -
+            matrixB.getHeight() - matrixSpacing);
     },
     function() {
         dialogue.message = 'Then add a placeholder for the matrix product.';
@@ -382,88 +386,88 @@ var scenes = [
     },
     function() {
         dialogue.message = 'So, we multiply the first entry on the left...';
-        equationDialogue.message = '(' + matrixViewA.getEntry(0, 0) + ' x ';
-        var position = matrixViewA.getEntryPosition(0, 0);
+        equation.message = '(' + matrixA.getEntry(0, 0) + ' x ';
+        var position = matrixA.getEntryPosition(0, 0);
         highlightA.x = position.x;
         highlightA.y = position.y;
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
         dialogue.message = 'by the top entry above.';
-        equationDialogue.message += matrixViewB.getEntry(0, 0) + ')';
-        var position = matrixViewB.getEntryPosition(0, 0);
+        equation.message += matrixB.getEntry(0, 0) + ')';
+        var position = matrixB.getEntryPosition(0, 0);
         highlightB.x = position.x;
         highlightB.y = position.y;
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
         dialogue.message = 'Then move inward.';
-        equationDialogue.message += ' + ';
+        equation.message += ' + ';
     },
     function() {
-        equationDialogue.message += '(' + matrixViewA.getEntry(0, 1) + ' x ';
-        var position = matrixViewA.getEntryPosition(0, 1);
+        equation.message += '(' + matrixA.getEntry(0, 1) + ' x ';
+        var position = matrixA.getEntryPosition(0, 1);
         tweener.to(highlightA, BASE_DURATION, 'x', position.x);
     },
     function() {
-        equationDialogue.message += matrixViewB.getEntry(1, 0) + ')';
-        var position = matrixViewB.getEntryPosition(1, 0);
+        equation.message += matrixB.getEntry(1, 0) + ')';
+        var position = matrixB.getEntryPosition(1, 0);
         tweener.to(highlightB, BASE_DURATION, 'y', position.y);
     },
     function() {
         dialogue.message = 'Which produces';
-        equationDialogue.message += ' = ';
+        equation.message += ' = ';
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 0);
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
     },
     function() {
         matrixProduct.setEntry(0, 0, matrixProductData[0][0]);
-        equationDialogue.message += matrixProductData[0][0];
+        equation.message += matrixProductData[0][0];
     },
     function() {
         dialogue.message = 'Now, repeat the process.';
-        equationDialogue.message = '';
+        equation.message = '';
     },
     function() {
         var position = matrixProduct.getEntryPosition(0, 1);
         tweener.to(highlightProduct, BASE_DURATION, 'x', position.x);
     },
     function() {
-        equationDialogue.message = '(' + matrixViewA.getEntry(0, 0) + ' x ';
-        var position = matrixViewA.getEntryPosition(0, 0);
+        equation.message = '(' + matrixA.getEntry(0, 0) + ' x ';
+        var position = matrixA.getEntryPosition(0, 0);
         highlightA.x = position.x;
         highlightA.y = position.y;
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
-        equationDialogue.message += matrixViewB.getEntry(0, 1) + ')';
-        var position = matrixViewB.getEntryPosition(0, 1);
+        equation.message += matrixB.getEntry(0, 1) + ')';
+        var position = matrixB.getEntryPosition(0, 1);
         highlightB.x = position.x;
         highlightB.y = position.y;
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
-        equationDialogue.message += ' + ';
+        equation.message += ' + ';
     },
     function() {
-        equationDialogue.message += '(' + matrixViewA.getEntry(0, 1) + ' x ';
-        var position = matrixViewA.getEntryPosition(0, 1);
+        equation.message += '(' + matrixA.getEntry(0, 1) + ' x ';
+        var position = matrixA.getEntryPosition(0, 1);
         tweener.to(highlightA, BASE_DURATION, 'x', position.x);
     },
     function() {
-        equationDialogue.message += matrixViewB.getEntry(1, 1) + ')';
-        var position = matrixViewB.getEntryPosition(1, 1);
+        equation.message += matrixB.getEntry(1, 1) + ')';
+        var position = matrixB.getEntryPosition(1, 1);
         tweener.to(highlightB, BASE_DURATION, 'y', position.y);
     },
     function() {
         dialogue.message = 'Which produces';
-        equationDialogue.message += ' = ';
+        equation.message += ' = ';
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 0);
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
     },
     function() {
         matrixProduct.setEntry(0, 1, matrixProductData[0][1]);
-        equationDialogue.message += matrixProductData[0][1];
+        equation.message += matrixProductData[0][1];
     },
 ];
 
@@ -485,9 +489,9 @@ draw = function() {
     highlightA.draw();
     highlightB.draw();
     highlightProduct.draw();
-    matrixViewA.draw();
-    matrixViewB.draw();
+    matrixA.draw();
+    matrixB.draw();
     matrixProduct.draw();
     dialogue.draw();
-    equationDialogue.draw();
+    equation.draw();
 };
