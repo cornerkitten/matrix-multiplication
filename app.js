@@ -393,7 +393,7 @@ var scenes = [
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
-        dialogue.message = 'by the top entry above.';
+        dialogue.message = 'By the top entry above.';
         equation.message += matrixB.getEntry(0, 0) + ')';
         var position = matrixB.getEntryPosition(0, 0);
         highlightB.x = position.x;
