@@ -403,30 +403,36 @@ var scenes = [
     function() {
         dialogue.message = 'Then move inward.';
         equation.message += ' + ';
+        var positionA = matrixA.getEntryPosition(0, 1);
+        tweener.to(highlightA, BASE_DURATION, 'x', positionA.x);
+        var positionB = matrixB.getEntryPosition(1, 0);
+        tweener.to(highlightB, BASE_DURATION, 'y', positionB.y);
     },
     function() {
         equation.message += '(' + matrixA.getEntry(0, 1) + ' x ';
-        var position = matrixA.getEntryPosition(0, 1);
-        tweener.to(highlightA, BASE_DURATION, 'x', position.x);
+        tweener.to(highlightA, BASE_DURATION, 'radius', highlightA.radius + 10);
     },
     function() {
         equation.message += matrixB.getEntry(1, 0) + ')';
-        var position = matrixB.getEntryPosition(1, 0);
-        tweener.to(highlightB, BASE_DURATION, 'y', position.y);
+        tweener.to(highlightA, BASE_DURATION, 'radius', highlightA.radius - 10);
+        tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius + 10);
     },
     function() {
         dialogue.message = 'Which produces';
         equation.message += ' = ';
+        tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius - 10);
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 0);
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
     },
     function() {
-        matrixProduct.setEntry(0, 0, matrixProductData[0][0]);
         equation.message += matrixProductData[0][0];
+        matrixProduct.setEntry(0, 0, matrixProductData[0][0]);
+        tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius + 10);
     },
     function() {
         dialogue.message = 'Now, repeat the process.';
         equation.message = '';
+        tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius - 10);
     },
     function() {
         var position = matrixProduct.getEntryPosition(0, 1);
@@ -448,27 +454,37 @@ var scenes = [
     },
     function() {
         equation.message += ' + ';
+        var positionA = matrixA.getEntryPosition(0, 1);
+        tweener.to(highlightA, BASE_DURATION, 'x', positionA.x);
+        var positionB = matrixB.getEntryPosition(1, 1);
+        tweener.to(highlightB, BASE_DURATION, 'y', positionB.y);
     },
     function() {
-        equation.message += '(' + matrixA.getEntry(0, 1) + ' x ';
-        var position = matrixA.getEntryPosition(0, 1);
-        tweener.to(highlightA, BASE_DURATION, 'x', position.x);
+        equation.message += '(' + matrixA.getEntry(0, 1);
+        tweener.to(highlightA, BASE_DURATION, 'radius', highlightA.radius + 10);
     },
     function() {
-        equation.message += matrixB.getEntry(1, 1) + ')';
-        var position = matrixB.getEntryPosition(1, 1);
-        tweener.to(highlightB, BASE_DURATION, 'y', position.y);
+        equation.message += ' x ' +matrixB.getEntry(1, 1) + ')';
+        tweener.to(highlightA, BASE_DURATION, 'radius', highlightA.radius - 10);
+        tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius + 10);
     },
     function() {
         dialogue.message = 'Which produces';
         equation.message += ' = ';
+        tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius - 10);
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 0);
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
     },
     function() {
         matrixProduct.setEntry(0, 1, matrixProductData[0][1]);
         equation.message += matrixProductData[0][1];
+        tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius + 10);
     },
+    function() {
+        dialogue.message = '';
+        equation.message = '';
+        tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius - 10);
+    }
 ];
 
 mouseClicked = function() {
