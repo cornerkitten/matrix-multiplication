@@ -319,22 +319,22 @@ var dialogue = new Dialogue(
         },
         fillColor: { r: 255, g: 255, b: 255, a: 200 },
     });
-// var equationDialogue = new Dialogue(
-//     0,
-//     height * 3 / 4 + 64,
-//     '( )',
-//     width,
-//     height,
-//     32,
-//     {
-//         text: {
-//             font: monospaceFont,
-//             size: 24,
-//             halign: LEFT,
-//             valign: BASELINE,
-//         },
-//         fillColor: { r: 255, g: 255, b: 255, a: 200 }
-//     });
+var equationDialogue = new Dialogue(
+    0,
+    height * 3 / 4 + 64,
+    '',
+    width,
+    height,
+    32,
+    {
+        text: {
+            font: monospaceFont,
+            size: 24,
+            halign: LEFT,
+            valign: BASELINE,
+        },
+        fillColor: { r: 255, g: 255, b: 255, a: 200 }
+    });
 
 
 // *************************************************************
@@ -353,7 +353,7 @@ var scenes = [
             matrixViewB.getHeight() - matrixSpacing);
     },
     function() {
-        dialogue.message = 'Then add a matrix where the product goes.';
+        dialogue.message = 'Then add a placeholder for the matrix product.';
         tweener.to(matrixViewC.drawConfig.fillColor, BASE_DURATION, 'a', 200);
         tweener.to(matrixViewC.drawConfig.strokeColor, BASE_DURATION, 'a', 200);
     },
@@ -365,37 +365,39 @@ var scenes = [
         tweener.to(highlightProduct.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
-        dialogue.message = 'So, we multiply the first entry on the left...\n(1 x';
+        dialogue.message = 'So, we multiply the first entry on the left...';
+        equationDialogue.message = '(' + matrixViewA.getEntry(0, 0) + ' x ';
         var position = matrixViewA.getEntryPosition(0, 0);
         highlightA.x = position.x;
         highlightA.y = position.y;
         tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
-        dialogue.message = 'by the top entry above.\n\n(1 x 5)';
+        dialogue.message = 'by the top entry above.';
+        equationDialogue.message += matrixViewB.getEntry(0, 0) + ')';
         var position = matrixViewB.getEntryPosition(0, 0);
         highlightB.x = position.x;
         highlightB.y = position.y;
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
-        dialogue.message = 'Then move inward.\n\n(1 x 5) + ';
+        dialogue.message = 'Then move inward.';
+        equationDialogue.message += ' + ';
     },
     function() {
-        // TODO Insert matrix value dynamically into string, instead of hard coding
-        dialogue.message += '(2 x ';
+        equationDialogue.message += '(' + matrixViewA.getEntry(0, 1) + ' x ';
         var position = matrixViewA.getEntryPosition(0, 1);
         tweener.to(highlightA, BASE_DURATION, 'x', position.x);
     },
     function() {
-        // dialogue.message += matrixViewB.getEntry(1, 0) + ')';
-        dialogue.message += matrixViewB.getEntry(1, 0) + ')';
+        equationDialogue.message += matrixViewB.getEntry(1, 0) + ')';
         var position = matrixViewB.getEntryPosition(1, 0);
         tweener.to(highlightB, BASE_DURATION, 'y', position.y);
     },
     function() {
         // TODO
-        dialogue.message = 'Which produces\n\n' + '';
+        dialogue.message = 'Which produces';
+        equationDialogue.message += ' = ';
     },
 ];
 var currentScene = 0;
@@ -422,4 +424,5 @@ draw = function() {
     matrixViewB.draw();
     matrixViewC.draw();
     dialogue.draw();
+    equationDialogue.draw();
 };
