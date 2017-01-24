@@ -148,6 +148,10 @@ MatrixView.prototype.getEntry = function(rowIndex, columnIndex) {
     return this.matrix[rowIndex][columnIndex];
 };
 
+MatrixView.prototype.setEntry = function(rowIndex, columnIndex, entry) {
+    this.matrix[rowIndex][columnIndex] = entry;
+};
+
 
 // *************************************************************
 // Highlight class *********************************************
@@ -286,19 +290,30 @@ var matrixDataB = [
     [5, 6],
     [7, 8],
     ];
-var matrixDataC = [
+var matrixProductData = [
+    [
+        matrixDataA[0][0] * matrixDataB[0][0] + matrixDataA[0][1] * matrixDataB[1][0],
+        matrixDataA[0][0] * matrixDataB[0][1] + matrixDataA[0][1] * matrixDataB[1][1],
+    ],
+    [
+        matrixDataA[1][0] * matrixDataB[0][0] + matrixDataA[1][1] * matrixDataB[1][0],
+        matrixDataA[1][0] * matrixDataB[0][1] + matrixDataA[1][1] * matrixDataB[1][1],
+    ],
+];
+var matrixDataBlank = [
     ['', ''],
     ['', ''],
     ];
 var matrixSpacing = 16;
+// TODO Consider rename matrixViewA -> matrixA
 var matrixViewA = new MatrixView(75, 100, matrixDataA, drawConfigA);
 var matrixViewB = new MatrixView(75, 100, matrixDataB, drawConfigB);
-var matrixViewC = new MatrixView(75, 100, matrixDataC, drawConfigC);
+var matrixProduct = new MatrixView(75, 100, matrixDataBlank, drawConfigC);
 matrixViewB.x += matrixViewA.getWidth() + matrixSpacing;
-matrixViewC.x += matrixViewA.getWidth() + matrixSpacing;
+matrixProduct.x += matrixViewA.getWidth() + matrixSpacing;
 matrixViewA.y += matrixViewB.getHeight() + matrixSpacing;
 matrixViewB.y += matrixViewB.getHeight() + matrixSpacing;
-matrixViewC.y += matrixViewB.getHeight() + matrixSpacing;
+matrixProduct.y += matrixViewB.getHeight() + matrixSpacing;
 
 var highlightA = new Highlight(0, 0, 40);
 var highlightB = new Highlight(0, 0, 40);
@@ -321,7 +336,7 @@ var dialogue = new Dialogue(
     });
 var equationDialogue = new Dialogue(
     0,
-    height * 3 / 4 + 64,
+    height * 3 / 4 + 56,
     '',
     width,
     height,
@@ -340,8 +355,9 @@ var equationDialogue = new Dialogue(
 // *************************************************************
 // Scene management ********************************************
 // *************************************************************
-var tweener = new Tweener();
 var BASE_DURATION = 300;
+var tweener = new Tweener();
+var currentScene = 0;
 
 var scenes = [
     function() {
@@ -354,12 +370,12 @@ var scenes = [
     },
     function() {
         dialogue.message = 'Then add a placeholder for the matrix product.';
-        tweener.to(matrixViewC.drawConfig.fillColor, BASE_DURATION, 'a', 200);
-        tweener.to(matrixViewC.drawConfig.strokeColor, BASE_DURATION, 'a', 200);
+        tweener.to(matrixProduct.drawConfig.fillColor, BASE_DURATION, 'a', 200);
+        tweener.to(matrixProduct.drawConfig.strokeColor, BASE_DURATION, 'a', 200);
     },
     function() {
         dialogue.message = 'Now, we want to determine the first value.';
-        var position = matrixViewC.getEntryPosition(0, 0);
+        var position = matrixProduct.getEntryPosition(0, 0);
         highlightProduct.x = position.x;
         highlightProduct.y = position.y;
         tweener.to(highlightProduct.drawConfig.fillColor, BASE_DURATION, 'a', 255);
@@ -395,12 +411,61 @@ var scenes = [
         tweener.to(highlightB, BASE_DURATION, 'y', position.y);
     },
     function() {
-        // TODO
         dialogue.message = 'Which produces';
         equationDialogue.message += ' = ';
+        tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 0);
+        tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
+    },
+    function() {
+        matrixProduct.setEntry(0, 0, matrixProductData[0][0]);
+        equationDialogue.message += matrixProductData[0][0];
+    },
+    function() {
+        dialogue.message = 'Now, repeat the process.';
+        equationDialogue.message = '';
+    },
+    function() {
+        var position = matrixProduct.getEntryPosition(0, 1);
+        tweener.to(highlightProduct, BASE_DURATION, 'x', position.x);
+    },
+    function() {
+        equationDialogue.message = '(' + matrixViewA.getEntry(0, 0) + ' x ';
+        var position = matrixViewA.getEntryPosition(0, 0);
+        highlightA.x = position.x;
+        highlightA.y = position.y;
+        tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
+    },
+    function() {
+        equationDialogue.message += matrixViewB.getEntry(0, 1) + ')';
+        var position = matrixViewB.getEntryPosition(0, 1);
+        highlightB.x = position.x;
+        highlightB.y = position.y;
+        tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 255);
+    },
+    function() {
+        equationDialogue.message += ' + ';
+    },
+    function() {
+        equationDialogue.message += '(' + matrixViewA.getEntry(0, 1) + ' x ';
+        var position = matrixViewA.getEntryPosition(0, 1);
+        tweener.to(highlightA, BASE_DURATION, 'x', position.x);
+    },
+    function() {
+        equationDialogue.message += matrixViewB.getEntry(1, 1) + ')';
+        var position = matrixViewB.getEntryPosition(1, 1);
+        tweener.to(highlightB, BASE_DURATION, 'y', position.y);
+    },
+    function() {
+        dialogue.message = 'Which produces';
+        equationDialogue.message += ' = ';
+        tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 0);
+        tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
+    },
+    function() {
+        matrixProduct.setEntry(0, 1, matrixProductData[0][1]);
+        equationDialogue.message += matrixProductData[0][1];
     },
 ];
-var currentScene = 0;
 
 mouseClicked = function() {
     if (currentScene < scenes.length) {
@@ -422,7 +487,7 @@ draw = function() {
     highlightProduct.draw();
     matrixViewA.draw();
     matrixViewB.draw();
-    matrixViewC.draw();
+    matrixProduct.draw();
     dialogue.draw();
     equationDialogue.draw();
 };
