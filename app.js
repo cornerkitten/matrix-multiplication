@@ -325,7 +325,7 @@ var highlightProduct = new Highlight(0, 0, 40);
 var dialogue = new Dialogue(
     0,
     matrixA.y + matrixA.getHeight(),
-    'We have two matrices.',
+    '',
     width,
     height,
     32,
@@ -365,7 +365,8 @@ var currentScene = 0;
 
 var scenes = [
     function() {
-        dialogue.message = 'Instead of counting rows and columns for the product...';
+        dialogue.message = 'Suppose we want to multiply two matrices.';
+        // dialogue.message = 'Instead of counting rows and columns for the product...';
     },
     function() {
         dialogue.message = 'We can just align the second matrix like so.';
@@ -487,12 +488,14 @@ var scenes = [
     }
 ];
 
-mouseClicked = function() {
+var nextScene = function() {
     if (currentScene < scenes.length) {
         scenes[currentScene]();
         currentScene++;
     }
 };
+mouseClicked = nextScene;
+nextScene();
 
 
 // *************************************************************
