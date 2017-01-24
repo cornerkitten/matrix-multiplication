@@ -305,9 +305,9 @@ var matrixDataBlank = [
     ['', ''],
     ];
 var matrixSpacing = 16;
-var matrixA = new MatrixView(75, 100, matrixDataA, drawConfigA);
-var matrixB = new MatrixView(75, 100, matrixDataB, drawConfigB);
-var matrixProduct = new MatrixView(75, 100, matrixDataBlank, drawConfigProduct);
+var matrixA = new MatrixView(75, 75, matrixDataA, drawConfigA);
+var matrixB = new MatrixView(75, 75, matrixDataB, drawConfigB);
+var matrixProduct = new MatrixView(75, 75, matrixDataBlank, drawConfigProduct);
 matrixB.x += matrixA.getWidth() + matrixSpacing;
 matrixProduct.x += matrixA.getWidth() + matrixSpacing;
 matrixA.y += matrixB.getHeight() + matrixSpacing;
@@ -324,7 +324,7 @@ var highlightProduct = new Highlight(0, 0, 40);
 // *************************************************************
 var dialogue = new Dialogue(
     0,
-    height * 3 / 4,
+    matrixA.y + matrixA.getHeight(),
     'We have two matrices.',
     width,
     height,
@@ -340,7 +340,7 @@ var dialogue = new Dialogue(
     });
 var equation = new Dialogue(
     0,
-    height * 3 / 4 + 56,
+    height * 3 / 4 + 28,
     '',
     width,
     height,
