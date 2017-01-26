@@ -1,6 +1,6 @@
-// *************************************************************
+// *****************************************************************************
 // Matrix Multiplication
-// -------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Background:  When I was learning about matrices in high
 //   school, our textbook would only *describe* how to perform
 //   matrix multiplication.  Something about matching this row
@@ -23,12 +23,12 @@
 //
 // Best,
 // Sam (aka CornerKitten)
-// *************************************************************
+// *****************************************************************************
 
 
-// *************************************************************
-// Matrix data *************************************************
-// *************************************************************
+// *****************************************************************************
+// Matrix data *****************************************************************
+// *****************************************************************************
 var matrixDataA = [
     [1, 2],
     [3, 4],
@@ -39,9 +39,9 @@ var matrixDataB = [
     ];
 
 
-// *************************************************************
-// MatrixView class ********************************************
-// *************************************************************
+// *****************************************************************************
+// MatrixView class ************************************************************
+// *****************************************************************************
 // Constraint: Properties of `drawProps.text` are assumed to
 //   never change.  For example, drawProps.text.size should
 //   never be animated.
@@ -151,9 +151,9 @@ MatrixView.prototype.drawBrace = function(isLeftBracket) {
 };
 
 
-// *************************************************************
-// Highlight class *********************************************
-// *************************************************************
+// *****************************************************************************
+// Highlight class *************************************************************
+// *****************************************************************************
 var Highlight = function(x, y, radius) {
     this.x = x;
     this.y = y;
@@ -172,9 +172,9 @@ Highlight.prototype.draw = function() {
 };
 
 
-// *************************************************************
-// Dialogue class **********************************************
-// *************************************************************
+// *****************************************************************************
+// Dialogue class **************************************************************
+// *****************************************************************************
 var Dialogue = function(x, y, message, width, height, padding, drawConfig) {
     this.x = x;
     this.y = y;
@@ -210,9 +210,9 @@ Dialogue.prototype.applyDrawConfig = function() {
 };
 
 
-// *************************************************************
-// DrawProps class ********************************************
-// *************************************************************
+// *****************************************************************************
+// DrawProps class *************************************************************
+// *****************************************************************************
 var DrawProps = function(props) {
     // Since JSON.parse/.stringify is not available, and we want to ensure
     // browser compatibility, we'll perform our copy the verbose way
@@ -252,7 +252,9 @@ DrawProps.prototype.apply = function() {
         textSize(this.text.size);
     }
     // TODO Consider allowing single align to be set
-    if (this.text && this.text.halign !== undefined && this.text.valign !== undefined) {
+    if (this.text && this.text.halign !== undefined &&
+        this.text.valign !== undefined)
+    {
         textAlign(this.text.halign, this.text.valign);
     }
     if (this.strokeColor) {
@@ -269,21 +271,17 @@ DrawProps.prototype.apply = function() {
     }
 };
 
-DrawProps.prototype.copy = function() {
-    // TODO
 
-    return copy;
-};
-
-
-// *************************************************************
-// Tweener class ***********************************************
-// *************************************************************
+// *****************************************************************************
+// Tweener class ***************************************************************
+// *****************************************************************************
 var Tweener = function() {
     this.tweens = [];
 };
 
-Tweener.prototype.to = function(subject, duration, key, endValue, isRepeating, previous) {
+Tweener.prototype.to = function(subject, duration, key, endValue, isRepeating,
+        previous)
+    {
     var now = millis();
 
     var tween = {
@@ -348,9 +346,9 @@ Tweener.prototype.update = function() {
 };
 
 
-// *************************************************************
-// Text and init setup *****************************************
-// *************************************************************
+// *****************************************************************************
+// Text and init setup *********************************************************
+// *****************************************************************************
 var monospaceFont = createFont('monospace');
 var sansSerifFont = createFont('sans-serif');
 // TODO Refactor so that we don't have to manually set font
@@ -359,17 +357,21 @@ textFont(monospaceFont, 24);
 textAlign(CENTER);
 
 
-// *************************************************************
-// Matrix setup ************************************************
-// *************************************************************
+// *****************************************************************************
+// Matrix setup ****************************************************************
+// *****************************************************************************
 var matrixDataProduct = [
     [
-        matrixDataA[0][0] * matrixDataB[0][0] + matrixDataA[0][1] * matrixDataB[1][0],
-        matrixDataA[0][0] * matrixDataB[0][1] + matrixDataA[0][1] * matrixDataB[1][1],
+        matrixDataA[0][0] * matrixDataB[0][0] +
+            matrixDataA[0][1] * matrixDataB[1][0],
+        matrixDataA[0][0] * matrixDataB[0][1] +
+            matrixDataA[0][1] * matrixDataB[1][1],
     ],
     [
-        matrixDataA[1][0] * matrixDataB[0][0] + matrixDataA[1][1] * matrixDataB[1][0],
-        matrixDataA[1][0] * matrixDataB[0][1] + matrixDataA[1][1] * matrixDataB[1][1],
+        matrixDataA[1][0] * matrixDataB[0][0] +
+            matrixDataA[1][1] * matrixDataB[1][0],
+        matrixDataA[1][0] * matrixDataB[0][1] +
+            matrixDataA[1][1] * matrixDataB[1][1],
     ],
 ];
 var matrixDataBlank = [
@@ -388,11 +390,15 @@ var matrixDrawConfig = {
 };
 
 // Create views for matrices
-var matrixA = new MatrixView(75, 75, matrixDataA, new DrawProps(matrixDrawConfig));
-var matrixB = new MatrixView(75, 75, matrixDataB, new DrawProps(matrixDrawConfig));
+var matrixA = new MatrixView(75, 75, matrixDataA,
+    new DrawProps(matrixDrawConfig));
+var matrixB = new MatrixView(75, 75, matrixDataB,
+    new DrawProps(matrixDrawConfig));
+
 matrixDrawConfig.strokeColor.a = 0;
 matrixDrawConfig.fillColor.a = 0;
-var matrixProduct = new MatrixView(75, 75, matrixDataBlank, new DrawProps(matrixDrawConfig));
+var matrixProduct = new MatrixView(75, 75, matrixDataBlank,
+    new DrawProps(matrixDrawConfig));
 
 // Position matrices
 var matrixSpacing = 16;
@@ -408,9 +414,9 @@ var highlightB = new Highlight(0, 0, 40);
 var highlightProduct = new Highlight(0, 0, 40);
 
 
-// *************************************************************
-// Dialogue setup **********************************************
-// *************************************************************
+// *****************************************************************************
+// Dialogue setup **************************************************************
+// *****************************************************************************
 var dialogue = new Dialogue(
     0,
     matrixA.y + matrixA.getHeight(),
@@ -461,9 +467,9 @@ var actionDialogue = new Dialogue(
     });
 
 
-// *************************************************************
-// Scene management ********************************************
-// *************************************************************
+// *****************************************************************************
+// Scene management ************************************************************
+// *****************************************************************************
 var BASE_DURATION = 300;
 var tweener = new Tweener();
 var currentScene = 0;
@@ -472,8 +478,10 @@ var scenes = [
     function() {
         dialogue.message = 'Suppose we want to multiply two matrices.';
 
-        tweener.to(actionDialogue, BASE_DURATION * 4, 'x', actionDialogue.x + 12)
-            .then(actionDialogue, BASE_DURATION * 4, 'x', actionDialogue.x, true);
+        tweener.to(actionDialogue, BASE_DURATION * 4,
+                'x', actionDialogue.x + 12)
+            .then(actionDialogue, BASE_DURATION * 4,
+                'x', actionDialogue.x, true);
     },
     function() {
         dialogue.message = 'We can just align the second matrix like so.';
@@ -483,14 +491,16 @@ var scenes = [
     function() {
         dialogue.message = 'Then add a placeholder for the matrix product.';
         tweener.to(matrixProduct.drawProps.fillColor, BASE_DURATION, 'a', 200);
-        tweener.to(matrixProduct.drawProps.strokeColor, BASE_DURATION, 'a', 200);
+        tweener.to(matrixProduct.drawProps.strokeColor, BASE_DURATION,
+            'a', 200);
     },
     function() {
         dialogue.message = 'Now, we want to determine the first value.';
         var position = matrixProduct.getEntryPosition(0, 0);
         highlightProduct.x = position.x;
         highlightProduct.y = position.y;
-        tweener.to(highlightProduct.drawConfig.fillColor, BASE_DURATION, 'a', 255);
+        tweener.to(highlightProduct.drawConfig.fillColor, BASE_DURATION,
+            'a', 255);
     },
     function() {
         dialogue.message = 'So, we multiply the first entry on the left...';
@@ -535,12 +545,14 @@ var scenes = [
     function() {
         equation.message += matrixDataProduct[0][0];
         matrixProduct.setEntry(0, 0, matrixDataProduct[0][0]);
-        tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius + 10);
+        tweener.to(highlightProduct, BASE_DURATION,
+            'radius', highlightProduct.radius + 10);
     },
     function() {
         dialogue.message = 'Now, repeat the process.';
         equation.message = '';
-        tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius - 10);
+        tweener.to(highlightProduct, BASE_DURATION,
+            'radius', highlightProduct.radius - 10);
     },
     function() {
         var position = matrixProduct.getEntryPosition(0, 1);
@@ -586,12 +598,14 @@ var scenes = [
     function() {
         matrixProduct.setEntry(0, 1, matrixDataProduct[0][1]);
         equation.message += matrixDataProduct[0][1];
-        tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius + 10);
+        tweener.to(highlightProduct, BASE_DURATION,
+            'radius', highlightProduct.radius + 10);
     },
     function() {
         dialogue.message = '';
         equation.message = '';
-        tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius - 10);
+        tweener.to(highlightProduct, BASE_DURATION,
+            'radius', highlightProduct.radius - 10);
     }
 ];
 
@@ -616,14 +630,14 @@ var nextScene = function() {
 
 mouseClicked = nextScene;
 
-// *************************************************************
-// Start *******************************************************
-// *************************************************************
+// *****************************************************************************
+// Start ***********************************************************************
+// *****************************************************************************
 nextScene();
 
-// *************************************************************
-// Draw ********************************************************
-// *************************************************************
+// *****************************************************************************
+// Draw ************************************************************************
+// *****************************************************************************
 draw = function() {
     tweener.update();
     background(81, 207, 245);
