@@ -25,6 +25,18 @@
 // Sam (aka CornerKitten)
 // *************************************************************
 
+// *************************************************************
+// Matrix data *************************************************
+// *************************************************************
+var matrixDataA = [
+    [1, 2],
+    [3, 4],
+    ];
+var matrixDataB = [
+    [5, 6],
+    [7, 8],
+    ];
+
 
 // *************************************************************
 // MatrixView class ********************************************
@@ -347,35 +359,16 @@ Tweener.prototype.update = function() {
 // *************************************************************
 var monospaceFont = createFont('monospace');
 var sansSerifFont = createFont('sans-serif');
+// TODO Refactor so that we don't have to manually set font
+//      properties outside DrawProps
 textFont(monospaceFont, 24);
 textAlign(CENTER);
-
-cursor(HAND);
 
 
 // *************************************************************
 // Matrix setup ************************************************
 // *************************************************************
-var matrixDrawConfig = {
-    text: {
-        font: monospaceFont,
-        size: 24,
-        halign: CENTER,
-        valign: BASELINE,
-    },
-    strokeColor: { r: 255, g: 255, b: 255, a: 200 },
-    fillColor: { r: 255, g: 255, b: 255, a: 200 },
-};
-
-var matrixDataA = [
-    [1, 2],
-    [3, 4],
-    ];
-var matrixDataB = [
-    [5, 6],
-    [7, 8],
-    ];
-var matrixProductData = [
+var matrixDataProduct = [
     [
         matrixDataA[0][0] * matrixDataB[0][0] + matrixDataA[0][1] * matrixDataB[1][0],
         matrixDataA[0][0] * matrixDataB[0][1] + matrixDataA[0][1] * matrixDataB[1][1],
@@ -388,19 +381,34 @@ var matrixProductData = [
 var matrixDataBlank = [
     ['', ''],
     ['', ''],
-    ];
-var matrixSpacing = 16;
+];
+var matrixDrawConfig = {
+    text: {
+        font: monospaceFont,
+        size: 24,
+        halign: CENTER,
+        valign: BASELINE,
+    },
+    strokeColor: { r: 255, g: 255, b: 255, a: 200 },
+    fillColor: { r: 255, g: 255, b: 255, a: 200 },
+};
+
+// Create views for matrices
 var matrixA = new MatrixView(75, 75, matrixDataA, new DrawProps(matrixDrawConfig));
 var matrixB = new MatrixView(75, 75, matrixDataB, new DrawProps(matrixDrawConfig));
 matrixDrawConfig.strokeColor.a = 0;
 matrixDrawConfig.fillColor.a = 0;
 var matrixProduct = new MatrixView(75, 75, matrixDataBlank, new DrawProps(matrixDrawConfig));
+
+// Position matrices
+var matrixSpacing = 16;
 matrixB.x += matrixA.getWidth() + matrixSpacing;
 matrixProduct.x += matrixA.getWidth() + matrixSpacing;
 matrixA.y += matrixB.getHeight() + matrixSpacing;
 matrixB.y += matrixB.getHeight() + matrixSpacing;
 matrixProduct.y += matrixB.getHeight() + matrixSpacing;
 
+// Create highlights for matrix entries
 var highlightA = new Highlight(0, 0, 40);
 var highlightB = new Highlight(0, 0, 40);
 var highlightProduct = new Highlight(0, 0, 40);
@@ -531,8 +539,8 @@ var scenes = [
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
     },
     function() {
-        equation.message += matrixProductData[0][0];
-        matrixProduct.setEntry(0, 0, matrixProductData[0][0]);
+        equation.message += matrixDataProduct[0][0];
+        matrixProduct.setEntry(0, 0, matrixDataProduct[0][0]);
         tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius + 10);
     },
     function() {
@@ -582,8 +590,8 @@ var scenes = [
         tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
     },
     function() {
-        matrixProduct.setEntry(0, 1, matrixProductData[0][1]);
-        equation.message += matrixProductData[0][1];
+        matrixProduct.setEntry(0, 1, matrixDataProduct[0][1]);
+        equation.message += matrixDataProduct[0][1];
         tweener.to(highlightProduct, BASE_DURATION, 'radius', highlightProduct.radius + 10);
     },
     function() {
@@ -608,11 +616,16 @@ var nextScene = function() {
         // TODO Ensure that, once last scene is loaded:
         //       - cursor is set back to normal
         //       - actionDialogue does not reappear
+        cursor(HAND);
     }
 };
-mouseClicked = nextScene;
-nextScene();
 
+mouseClicked = nextScene;
+
+// *************************************************************
+// Start *******************************************************
+// *************************************************************
+nextScene();
 
 // *************************************************************
 // Draw ********************************************************
