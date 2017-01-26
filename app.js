@@ -242,51 +242,68 @@ var Tweener = function() {
     this.tweens = [];
 };
 
-Tweener.prototype.to = function(parent, duration, key, value, isRepeating, onComplete) {
+Tweener.prototype.to = function(subject, duration, key, endValue, isRepeating, previous) {
     var now = millis();
 
-    this.tweens.push({
-        parent: parent,
+    var tween = {
+        subject: subject,
         duration: duration,
         key: key,
-        startValue: parent[key],
-        diffValue: value - parent[key],
+        startValue: subject[key],
+        endValue: endValue,
+        diffValue: endValue - subject[key],
         startTime: now,
         isRepeating: isRepeating || false,
-        onComplete: onComplete,
-    });
+        previous: previous,
+    };
+    if (previous) {
+        previous.next = tween;
+    } else {
+        this.tweens.push(tween);
+    }
+
+    var that = this;
+    return {
+        then: function(subject, duration, key, value, isRepeating) {
+            return that.to(subject, duration, key, value, isRepeating, tween);
+        },
+    };
 };
 
 Tweener.prototype.update = function() {
     var now = millis();
     var remainingTweens = [];
-    var callbacks = [];
 
     this.tweens.forEach(function(tween) {
         var fractionComplete = (now - tween.startTime) / tween.duration;
 
-        if (fractionComplete > 1) {
-            tween.parent[tween.key] = tween.startValue + tween.diffValue;
 
-            if (tween.onComplete !== undefined) {
-                callbacks.push(tween.onComplete);
+        if (fractionComplete > 1) {
+            tween.subject[tween.key] = tween.endValue;
+
+            var nextTween;
+            if (tween.next !== undefined) {
+                nextTween = tween.next;
+            } else if (tween.isRepeating) {
+                nextTween = tween;
+                while (nextTween.previous) {
+                    nextTween = nextTween.previous;
+                }
             }
-            if (tween.isRepeating) {
-                tween.startTime = now;
-                remainingTweens.push(tween);
+            if (nextTween) {
+                nextTween.startTime = now;
+                nextTween.startValue = nextTween.subject[nextTween.key];
+                nextTween.diffValue = nextTween.endValue - nextTween.startValue;
+                remainingTweens.push(nextTween);
             }
         } else {
-            tween.parent[tween.key] = tween.startValue +
+            tween.subject[tween.key] = tween.startValue +
                 tween.diffValue * fractionComplete;
             remainingTweens.push(tween);
         }
     });
 
     this.tweens = remainingTweens;
-
-    callbacks.forEach(function(callback) {
-        callback();
-    });
 };
 
 
@@ -428,16 +445,8 @@ var scenes = [
     function() {
         dialogue.message = 'Suppose we want to multiply two matrices.';
 
-        var moveForward = function() {
-            tweener.to(actionDialogue, BASE_DURATION * 2, 'x',
-                actionDialogue.x + 12, false, function() {
-                    tweener.to(actionDialogue, BASE_DURATION * 2, 'x',
-                        actionDialogue.x - 12, false, moveForward);
-            });
-        };
-        moveForward();
-
-        // tweener.to(actionDialogue.drawConfig.fillColor, BASE_DURATION * 4, 'a', 42, true);
+        tweener.to(actionDialogue, BASE_DURATION * 4, 'x', actionDialogue.x + 12)
+            .then(actionDialogue, BASE_DURATION * 4, 'x', actionDialogue.x, true);
     },
     function() {
         dialogue.message = 'We can just align the second matrix like so.';
@@ -560,9 +569,20 @@ var scenes = [
 ];
 
 var nextScene = function() {
+    // TODO Update currentScene so it properly references our furthest
+    //      called scene function, instead of looking like an
+    //      off-by-one-error
     if (currentScene < scenes.length) {
         scenes[currentScene]();
         currentScene++;
+
+        tweener.to(actionDialogue.drawConfig.fillColor, 0, 'a', 0)
+            .then(actionDialogue.drawConfig.fillColor, 2000, 'a', 0)
+            .then(actionDialogue.drawConfig.fillColor, 2000, 'a', 75);
+
+        // TODO Ensure that, once last scene is loaded:
+        //       - cursor is set back to normal
+        //       - actionDialogue does not reappear
     }
 };
 mouseClicked = nextScene;
