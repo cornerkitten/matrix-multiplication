@@ -25,6 +25,7 @@
 // Sam (aka CornerKitten)
 // *************************************************************
 
+
 // *************************************************************
 // Matrix data *************************************************
 // *************************************************************
@@ -41,6 +42,9 @@ var matrixDataB = [
 // *************************************************************
 // MatrixView class ********************************************
 // *************************************************************
+// Constraint: Properties of `drawProps.text` are assumed to
+//   never change.  For example, drawProps.text.size should
+//   never be animated.
 var MatrixView = function(x, y, matrixData, drawProps) {
     this.matrix = matrixData;
     this.x = x;
@@ -48,10 +52,42 @@ var MatrixView = function(x, y, matrixData, drawProps) {
     this.rowHeight = 48;
     this.columnWidth = 48;
     this.drawProps = drawProps;
-    this.braceConfig_ = this.calculatedBraceConfig();
 
-    var rowCount = this.matrix.length;
+    this.drawProps.apply();
+    this.entryOffset_ = {
+        x: textWidth('00'),
+        y: textAscent() / 3,
+    };
+    this.braceConfig_ = {
+        width: textWidth('0'),
+        height: textAscent() * 2 + this.rowHeight * (this.matrix.length - 1),
+        thickness: 4,
+    };
+};
+
+MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
+    return {
+        x: this.x + columnIndex * this.columnWidth + this.entryOffset_.x,
+        y: this.y + rowIndex * this.rowHeight - this.entryOffset_.y,
+    };
+};
+
+MatrixView.prototype.getEntry = function(rowIndex, columnIndex) {
+    return this.matrix[rowIndex][columnIndex];
+};
+
+MatrixView.prototype.setEntry = function(rowIndex, columnIndex, entry) {
+    this.matrix[rowIndex][columnIndex] = entry;
+};
+
+MatrixView.prototype.getWidth = function() {
     var columnCount = this.matrix[0].length;
+    return columnCount * this.columnWidth + this.braceConfig_.width * 2 -
+        textWidth('0') / 2 + this.braceConfig_.thickness;
+};
+
+MatrixView.prototype.getHeight = function() {
+    return this.braceConfig_.height + this.braceConfig_.thickness;
 };
 
 MatrixView.prototype.draw = function() {
@@ -112,48 +148,6 @@ MatrixView.prototype.drawBrace = function(isLeftBracket) {
         bracePosition.y + height + thickness / 2,
         bracePosition.x + (isLeftBracket ? width : -width),
         bracePosition.y + height + thickness / 2);
-};
-
-MatrixView.prototype.getWidth = function() {
-    var columnCount = this.matrix[0].length;
-    return columnCount * this.columnWidth + this.braceConfig_.width * 2 -
-        textWidth('0') / 2 + this.braceConfig_.thickness;
-};
-
-MatrixView.prototype.getHeight = function() {
-    return this.braceConfig_.height + this.braceConfig_.thickness;
-};
-
-// Should be used to update `this.braceConfig_` whenever
-// font size or matrix size changes
-MatrixView.prototype.calculatedBraceConfig = function() {
-    this.drawProps.apply();
-    return {
-        width: textWidth('0'),
-        height: textAscent() * 2 + this.rowHeight * (this.matrix.length - 1),
-        thickness: 4,
-    };
-};
-
-MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
-    // TODO Refactor so textSize() doesn't need called every time
-    //      Maybe add constraint to class where text props are assumed
-    //      to remain constant (e.g. they will not be animated)
-    this.drawProps.apply();
-    // textSize(this.drawProps.text.size);
-
-    return {
-        x: this.x + columnIndex * this.columnWidth + textWidth('00'),
-        y: this.y + rowIndex * this.rowHeight - textAscent() / 3,
-    };
-};
-
-MatrixView.prototype.getEntry = function(rowIndex, columnIndex) {
-    return this.matrix[rowIndex][columnIndex];
-};
-
-MatrixView.prototype.setEntry = function(rowIndex, columnIndex, entry) {
-    this.matrix[rowIndex][columnIndex] = entry;
 };
 
 
