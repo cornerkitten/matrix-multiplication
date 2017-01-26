@@ -207,6 +207,24 @@ Dialogue.prototype.applyDrawConfig = function() {
 
 
 // *************************************************************
+// DrawConfig class ********************************************
+// *************************************************************
+var DrawConfig = function(config) {
+    // TODO
+};
+
+DrawConfig.prototype.apply = function() {
+    // TODO
+};
+
+DrawConfig.prototype.copy = function() {
+    // TODO
+
+    return copy;
+};
+
+
+// *************************************************************
 // Tweener class ***********************************************
 // *************************************************************
 var Tweener = function() {
@@ -227,7 +245,6 @@ Tweener.prototype.to = function(parent, duration, key, value) {
 };
 
 Tweener.prototype.update = function() {
-    // TODO
     var now = millis();
     var remainingTweens = [];
 
@@ -366,7 +383,6 @@ var currentScene = 0;
 var scenes = [
     function() {
         dialogue.message = 'Suppose we want to multiply two matrices.';
-        // dialogue.message = 'Instead of counting rows and columns for the product...';
     },
     function() {
         dialogue.message = 'We can just align the second matrix like so.';
