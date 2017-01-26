@@ -6,7 +6,9 @@
 //   matrix multiplication.  Something about matching this row
 //   wih that column, then match this thing with that thing,
 //   etc.  Oh, and make sure the sizes are compatible by this
-//   rule and that.  Bleh.
+//   rule and that.  It eventually makes sense, but it's a bit
+//   'bleh' when you have to perform lots of matrix
+//   multiplications by hand.
 //
 //   Instead, the process can be simplified visually if you
 //   line up AxB so that A sits to the left of the result
@@ -15,9 +17,9 @@
 //   for where the row from A and column from B line up,
 //   for each value in the result matrix.
 //
-//   This approach is nothing new, but it's often overlooked.
-//   So, I thought I would share it, since it has helped me
-//   and my classmates throughout high school and college.
+//   This approach is nothing new.  But, I thought I would share
+//   it, since it has helped me and my classmates throughout
+//   high school and college.
 //
 // Best,
 // Sam (aka CornerKitten)
@@ -138,6 +140,9 @@ MatrixView.prototype.calculatedBraceConfig = function() {
 };
 
 MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
+    // TODO Refactor so textSize() doesn't need called every time
+    textSize(this.drawConfig.text.size);
+
     return {
         x: this.x + columnIndex * this.columnWidth + textWidth('00'),
         y: this.y + rowIndex * this.rowHeight - textAscent() / 3,
@@ -189,11 +194,17 @@ var Dialogue = function(x, y, message, width, height, padding, drawConfig) {
 
 Dialogue.prototype.draw = function() {
     this.applyDrawConfig();
-    text(this.message,
-        this.x + this.padding,
-        this.y,
-        this.width - this.padding * 2,
-        this.height);
+    if (this.width !== undefined && this.height !== undefined) {
+        // TODO Determine whether padding should apply for y
+        text(this.message,
+            this.x + this.padding,
+            this.y,
+            this.width - this.padding * 2,
+            this.height);
+    } else {
+        // TODO Determine whether padding should apply
+        text(this.message, this.x, this.y);
+    }
 };
 
 Dialogue.prototype.applyDrawConfig = function() {
@@ -231,7 +242,7 @@ var Tweener = function() {
     this.tweens = [];
 };
 
-Tweener.prototype.to = function(parent, duration, key, value) {
+Tweener.prototype.to = function(parent, duration, key, value, isRepeating, onComplete) {
     var now = millis();
 
     this.tweens.push({
@@ -241,18 +252,29 @@ Tweener.prototype.to = function(parent, duration, key, value) {
         startValue: parent[key],
         diffValue: value - parent[key],
         startTime: now,
+        isRepeating: isRepeating || false,
+        onComplete: onComplete,
     });
 };
 
 Tweener.prototype.update = function() {
     var now = millis();
     var remainingTweens = [];
+    var callbacks = [];
 
     this.tweens.forEach(function(tween) {
         var fractionComplete = (now - tween.startTime) / tween.duration;
 
         if (fractionComplete > 1) {
             tween.parent[tween.key] = tween.startValue + tween.diffValue;
+            if (tween.isRepeating) {
+                tween.startTime = now;
+                remainingTweens.push(tween);
+
+                if (tween.onComplete !== undefined) {
+                    callbacks.push(tween.onComplete);
+                }
+            }
         } else {
             tween.parent[tween.key] = tween.startValue +
                 tween.diffValue * fractionComplete;
@@ -261,11 +283,15 @@ Tweener.prototype.update = function() {
     });
 
     this.tweens = remainingTweens;
+
+    callbacks.forEach(function(callback) {
+        callback();
+    });
 };
 
 
 // *************************************************************
-// Text property setup *****************************************
+// Text and init setup *****************************************
 // *************************************************************
 var monospaceFont = createFont('monospace');
 var sansSerifFont = createFont('sans-serif');
@@ -278,6 +304,8 @@ var textConfig = {
     halign: CENTER,
     valign: BASELINE,
 };
+
+cursor(HAND);
 
 
 // *************************************************************
@@ -369,7 +397,23 @@ var equation = new Dialogue(
             halign: LEFT,
             valign: BASELINE,
         },
-        fillColor: { r: 255, g: 255, b: 255, a: 200 }
+        fillColor: { r: 255, g: 255, b: 255, a: 200 },
+    });
+var actionDialogue = new Dialogue(
+    width - 20,
+    height - 8,
+    '→',
+    undefined,
+    undefined,
+    0,
+    {
+        text: {
+            font: monospaceFont,
+            size: 40,
+            halign: RIGHT,
+            valign: BOTTOM,
+        },
+        fillColor: { r: 255, g: 255, b: 255, a: 200 },
     });
 
 
@@ -383,6 +427,8 @@ var currentScene = 0;
 var scenes = [
     function() {
         dialogue.message = 'Suppose we want to multiply two matrices.';
+        tweener.to(actionDialogue, BASE_DURATION * 4, 'x', actionDialogue.x + 16, true);
+        tweener.to(actionDialogue.drawConfig.fillColor, BASE_DURATION * 4, 'a', 42, true);
     },
     function() {
         dialogue.message = 'We can just align the second matrix like so.';
@@ -527,6 +573,8 @@ draw = function() {
     matrixA.draw();
     matrixB.draw();
     matrixProduct.draw();
+    actionDialogue.draw();
     dialogue.draw();
     equation.draw();
+    actionDialogue.draw();
 };
