@@ -29,13 +29,13 @@
 // *************************************************************
 // MatrixView class ********************************************
 // *************************************************************
-var MatrixView = function(x, y, matrixData, drawConfig) {
+var MatrixView = function(x, y, matrixData, drawProps) {
     this.matrix = matrixData;
     this.x = x;
     this.y = y;
     this.rowHeight = 48;
     this.columnWidth = 48;
-    this.drawConfig = drawConfig;
+    this.drawProps = drawProps;
     this.braceConfig_ = this.calculatedBraceConfig();
 
     var rowCount = this.matrix.length;
@@ -43,27 +43,10 @@ var MatrixView = function(x, y, matrixData, drawConfig) {
 };
 
 MatrixView.prototype.draw = function() {
-    this.applyDrawConfig();
+    this.drawProps.apply();
     this.drawBrace(true);
     this.drawBrace(false);
     this.drawMatrixValues();
-};
-
-MatrixView.prototype.applyDrawConfig = function() {
-    var myText = this.drawConfig.text;
-    var strokeColor = this.drawConfig.strokeColor;
-    var fillColor = this.drawConfig.fillColor;
-
-    textFont(myText.font, myText.size);
-    textAlign(myText.halign, myText.valign);
-    stroke(strokeColor.r,
-        strokeColor.g,
-        strokeColor.b,
-        strokeColor.a);
-    fill(fillColor.r,
-        fillColor.g,
-        fillColor.b,
-        fillColor.a);
 };
 
 MatrixView.prototype.drawMatrixValues = function() {
@@ -132,6 +115,7 @@ MatrixView.prototype.getHeight = function() {
 // Should be used to update `this.braceConfig_` whenever
 // font size or matrix size changes
 MatrixView.prototype.calculatedBraceConfig = function() {
+    this.drawProps.apply();
     return {
         width: textWidth('0'),
         height: textAscent() * 2 + this.rowHeight * (this.matrix.length - 1),
@@ -141,7 +125,10 @@ MatrixView.prototype.calculatedBraceConfig = function() {
 
 MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
     // TODO Refactor so textSize() doesn't need called every time
-    textSize(this.drawConfig.text.size);
+    //      Maybe add constraint to class where text props are assumed
+    //      to remain constant (e.g. they will not be animated)
+    this.drawProps.apply();
+    // textSize(this.drawProps.text.size);
 
     return {
         x: this.x + columnIndex * this.columnWidth + textWidth('00'),
@@ -218,17 +205,65 @@ Dialogue.prototype.applyDrawConfig = function() {
 
 
 // *************************************************************
-// DrawConfig class ********************************************
+// DrawProps class ********************************************
 // *************************************************************
-var DrawConfig = function(config) {
-    // TODO
+var DrawProps = function(props) {
+    // Since JSON.parse/.stringify is not available, and we want to ensure
+    // browser compatibility, we'll perform our copy the verbose way
+    // (which is probably fine, since I'm not sure if a font instance
+    // is serializable)
+    if (props.text) {
+        this.text = {
+            font: props.text.font,
+            size: props.text.size,
+            halign: props.text.halign,
+            valign: props.text.valign,
+        };
+    }
+    if (props.strokeColor) {
+        this.strokeColor = {
+            r: props.strokeColor.r,
+            g: props.strokeColor.g,
+            b: props.strokeColor.b,
+            a: props.strokeColor.a,
+        };
+    }
+    if (props.fillColor) {
+        this.fillColor = {
+            r: props.fillColor.r,
+            g: props.fillColor.g,
+            b: props.fillColor.b,
+            a: props.fillColor.a,
+        };
+    }
 };
 
-DrawConfig.prototype.apply = function() {
-    // TODO
+DrawProps.prototype.apply = function() {
+    if (this.text && this.text.font) {
+        textFont(this.text.font, this.text.size);
+    }
+    if (this.text && this.text.size) {
+        textSize(this.text.size);
+    }
+    // TODO Consider allowing single align to be set
+    if (this.text && this.text.halign !== undefined && this.text.valign !== undefined) {
+        textAlign(this.text.halign, this.text.valign);
+    }
+    if (this.strokeColor) {
+        stroke(this.strokeColor.r,
+            this.strokeColor.g,
+            this.strokeColor.b,
+            this.strokeColor.a);
+    }
+    if (this.fillColor) {
+        fill(this.fillColor.r,
+            this.fillColor.g,
+            this.fillColor.b,
+            this.fillColor.a);
+    }
 };
 
-DrawConfig.prototype.copy = function() {
+DrawProps.prototype.copy = function() {
     // TODO
 
     return copy;
@@ -315,33 +350,21 @@ var sansSerifFont = createFont('sans-serif');
 textFont(monospaceFont, 24);
 textAlign(CENTER);
 
-var textConfig = {
-    font: monospaceFont,
-    size: 24,
-    halign: CENTER,
-    valign: BASELINE,
-};
-
 cursor(HAND);
 
 
 // *************************************************************
 // Matrix setup ************************************************
 // *************************************************************
-var drawConfigA = {
-    text: textConfig,
+var matrixDrawConfig = {
+    text: {
+        font: monospaceFont,
+        size: 24,
+        halign: CENTER,
+        valign: BASELINE,
+    },
     strokeColor: { r: 255, g: 255, b: 255, a: 200 },
     fillColor: { r: 255, g: 255, b: 255, a: 200 },
-};
-var drawConfigB = {
-    text: textConfig,
-    strokeColor: { r: 255, g: 255, b: 255, a: 200 },
-    fillColor: { r: 255, g: 255, b: 255, a: 200 },
-};
-var drawConfigProduct = {
-    text: textConfig,
-    strokeColor: { r: 255, g: 255, b: 255, a: 0 },
-    fillColor: { r: 255, g: 255, b: 255, a: 0 },
 };
 
 var matrixDataA = [
@@ -367,9 +390,11 @@ var matrixDataBlank = [
     ['', ''],
     ];
 var matrixSpacing = 16;
-var matrixA = new MatrixView(75, 75, matrixDataA, drawConfigA);
-var matrixB = new MatrixView(75, 75, matrixDataB, drawConfigB);
-var matrixProduct = new MatrixView(75, 75, matrixDataBlank, drawConfigProduct);
+var matrixA = new MatrixView(75, 75, matrixDataA, new DrawProps(matrixDrawConfig));
+var matrixB = new MatrixView(75, 75, matrixDataB, new DrawProps(matrixDrawConfig));
+matrixDrawConfig.strokeColor.a = 0;
+matrixDrawConfig.fillColor.a = 0;
+var matrixProduct = new MatrixView(75, 75, matrixDataBlank, new DrawProps(matrixDrawConfig));
 matrixB.x += matrixA.getWidth() + matrixSpacing;
 matrixProduct.x += matrixA.getWidth() + matrixSpacing;
 matrixA.y += matrixB.getHeight() + matrixSpacing;
@@ -455,8 +480,8 @@ var scenes = [
     },
     function() {
         dialogue.message = 'Then add a placeholder for the matrix product.';
-        tweener.to(matrixProduct.drawConfig.fillColor, BASE_DURATION, 'a', 200);
-        tweener.to(matrixProduct.drawConfig.strokeColor, BASE_DURATION, 'a', 200);
+        tweener.to(matrixProduct.drawProps.fillColor, BASE_DURATION, 'a', 200);
+        tweener.to(matrixProduct.drawProps.strokeColor, BASE_DURATION, 'a', 200);
     },
     function() {
         dialogue.message = 'Now, we want to determine the first value.';
