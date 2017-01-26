@@ -267,13 +267,13 @@ Tweener.prototype.update = function() {
 
         if (fractionComplete > 1) {
             tween.parent[tween.key] = tween.startValue + tween.diffValue;
+
+            if (tween.onComplete !== undefined) {
+                callbacks.push(tween.onComplete);
+            }
             if (tween.isRepeating) {
                 tween.startTime = now;
                 remainingTweens.push(tween);
-
-                if (tween.onComplete !== undefined) {
-                    callbacks.push(tween.onComplete);
-                }
             }
         } else {
             tween.parent[tween.key] = tween.startValue +
@@ -400,7 +400,7 @@ var equation = new Dialogue(
         fillColor: { r: 255, g: 255, b: 255, a: 200 },
     });
 var actionDialogue = new Dialogue(
-    width - 20,
+    width - 24,
     height - 8,
     '→',
     undefined,
@@ -413,7 +413,7 @@ var actionDialogue = new Dialogue(
             halign: RIGHT,
             valign: BOTTOM,
         },
-        fillColor: { r: 255, g: 255, b: 255, a: 200 },
+        fillColor: { r: 255, g: 255, b: 255, a: 150 },
     });
 
 
@@ -427,8 +427,17 @@ var currentScene = 0;
 var scenes = [
     function() {
         dialogue.message = 'Suppose we want to multiply two matrices.';
-        tweener.to(actionDialogue, BASE_DURATION * 4, 'x', actionDialogue.x + 16, true);
-        tweener.to(actionDialogue.drawConfig.fillColor, BASE_DURATION * 4, 'a', 42, true);
+
+        var moveForward = function() {
+            tweener.to(actionDialogue, BASE_DURATION * 2, 'x',
+                actionDialogue.x + 12, false, function() {
+                    tweener.to(actionDialogue, BASE_DURATION * 2, 'x',
+                        actionDialogue.x - 12, false, moveForward);
+            });
+        };
+        moveForward();
+
+        // tweener.to(actionDialogue.drawConfig.fillColor, BASE_DURATION * 4, 'a', 42, true);
     },
     function() {
         dialogue.message = 'We can just align the second matrix like so.';
