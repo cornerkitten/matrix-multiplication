@@ -56,7 +56,7 @@ var MatrixView = function(x, y, matrixData, drawProps) {
     // due to how Processing seems to require changing global display
     // in order to measure expected text properties.  We could place this
     // in an init() function, but we'll just keep the logic here for now.
-    this.drawProps.apply();
+    this.drawProps.applyProps();
     this.entryOffset_ = {
         x: textWidth('00'),
         y: -textAscent() / 3,
@@ -95,7 +95,7 @@ MatrixView.prototype.getHeight = function() {
 };
 
 MatrixView.prototype.draw = function() {
-    this.drawProps.apply();
+    this.drawProps.applyProps();
     this.drawBrace(true);
     this.drawBrace(false);
     this.drawMatrixValues();
@@ -159,7 +159,7 @@ var Highlight = function(x, y, radius, drawProps) {
 };
 
 Highlight.prototype.draw = function() {
-    this.drawProps.apply();
+    this.drawProps.applyProps();
     noStroke();
     ellipse(this.x, this.y, this.radius, this.radius);
 };
@@ -179,7 +179,7 @@ var Dialogue = function(x, y, message, width, height, padding, drawProps) {
 };
 
 Dialogue.prototype.draw = function() {
-    this.drawProps.apply();
+    this.drawProps.applyProps();
 
     if (this.width !== undefined && this.height !== undefined) {
         // TODO Determine whether padding should apply for y
@@ -229,7 +229,7 @@ var DrawProps = function(props) {
     }
 };
 
-DrawProps.prototype.apply = function() {
+DrawProps.prototype.applyProps = function() {
     if (this.text && this.text.font) {
         textFont(this.text.font, this.text.size);
     }
@@ -351,7 +351,7 @@ var backgroundColor = { r: 81, g: 207, b: 245 };
 
 
 // *****************************************************************************
-// Matrix setup ****************************************************************
+// Matrix view setup ***********************************************************
 // *****************************************************************************
 var matrixDataProduct = [
     [
@@ -393,10 +393,10 @@ var matrixProduct = new MatrixView(75, 75, matrixDataBlank,
 
 // Position matrices
 var matrixSpacing = 16;
-matrixB.x += matrixA.getWidth() + matrixSpacing;
-matrixProduct.x += matrixA.getWidth() + matrixSpacing;
 matrixA.y += matrixB.getHeight() + matrixSpacing;
+matrixB.x += matrixA.getWidth() + matrixSpacing;
 matrixB.y += matrixB.getHeight() + matrixSpacing;
+matrixProduct.x += matrixA.getWidth() + matrixSpacing;
 matrixProduct.y += matrixB.getHeight() + matrixSpacing;
 
 // Create highlights for matrix entries
@@ -409,7 +409,7 @@ var highlightProduct = new Highlight(0, 0, 40, new DrawProps(highlightConfig));
 
 
 // *****************************************************************************
-// Dialogue setup **************************************************************
+// Dialogue view setup *********************************************************
 // *****************************************************************************
 var dialogueProps = {
     text: {
@@ -438,7 +438,7 @@ var actionDialogue = new Dialogue(width - 24, height - 8, '→',
 // *****************************************************************************
 // Tweening setup **************************************************************
 // *****************************************************************************
-var BASE_DURATION = 300;
+var BASE_DURATION = 300; // milliseconds
 var tweener = new Tweener();
 
 // TODO Consider removing this function, as it was mostly used for experimenting
