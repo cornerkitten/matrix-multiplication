@@ -28,7 +28,7 @@ In order to conform to the community guidelines on Khan Academy, the recommended
 
 Note that this app uses a number of global functions/variables, as this is conventional to the environment it was written for.  For example, the Processing function `fontSize()` is available in the global context and will likewise apply the font size change to the global drawing state.
 
-This can get a bit messy pretty quickly, so the `DrawProps` class is used to help centralize these changes.  This way, each view no longer needs to worry about messing up each other's expected draw state).
+This can get a bit messy pretty quickly, so the `DrawProps` class is used to help centralize these changes.  This way, each view no longer needs to worry about messing up each other's expected draw state.
 
 
 ## Author
