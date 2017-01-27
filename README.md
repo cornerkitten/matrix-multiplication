@@ -1,5 +1,5 @@
 
-TODO
+TODO (for this README)
  - Link to Khan Academy project
      https://www.khanacademy.org/computer-programming/matrix-multiplication/6191097875857408
  - Include background
