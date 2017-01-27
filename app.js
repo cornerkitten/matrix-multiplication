@@ -731,13 +731,13 @@ draw = function() {
     var size = 16;
     noStroke();
     fill(blue.r, blue.g, blue.b);
-    rect(0, 0, size, size);
+    rect(0, 0, width - size, size);
     fill(green.r, green.g, green.b);
-    rect(width - size, 0, size, size);
-    fill(orange.r, orange.g, orange.b);
-    rect(0, height - size, size, size);
+    rect(width - size, 0, size, height - size);
     fill(yellow.r, yellow.g, yellow.b);
-    rect(width - size, height - size, size, size);
+    rect(0, size, size, height - size);
+    fill(orange.r, orange.g, orange.b);
+    rect(size, height - size, width - size, size);
 };
 
 /*
