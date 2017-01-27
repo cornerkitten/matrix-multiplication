@@ -42,9 +42,8 @@ var matrixDataB = [
 // *****************************************************************************
 // MatrixView class ************************************************************
 // *****************************************************************************
-// Constraint: Properties of `drawProps.text` are assumed to
-//   never change.  For example, drawProps.text.size should
-//   never be animated.
+// Constraint: Properties of `drawProps.text` are assumed to never change for
+//   MatrixView.  For example, drawProps.text.size should never be animated.
 var MatrixView = function(x, y, matrixData, drawProps) {
     this.matrix = matrixData;
     this.x = x;
@@ -53,14 +52,19 @@ var MatrixView = function(x, y, matrixData, drawProps) {
     this.columnWidth = 48;
     this.drawProps = drawProps;
 
+    // Currently breaking the rule of no side affects in constructors,
+    // due to how Processing seems to require changing global display
+    // in order to measure expected text properties.  We could place this
+    // in an init() function, but we'll just keep the logic here for now.
     this.drawProps.apply();
     this.entryOffset_ = {
         x: textWidth('00'),
-        y: textAscent() / 3,
+        y: -textAscent() / 3,
     };
     this.braceConfig_ = {
         width: textWidth('0'),
         height: textAscent() * 2 + this.rowHeight * (this.matrix.length - 1),
+        yOffset: -textAscent() * 1.5,
         thickness: 4,
     };
 };
@@ -68,7 +72,7 @@ var MatrixView = function(x, y, matrixData, drawProps) {
 MatrixView.prototype.getEntryPosition = function(rowIndex, columnIndex) {
     return {
         x: this.x + columnIndex * this.columnWidth + this.entryOffset_.x,
-        y: this.y + rowIndex * this.rowHeight - this.entryOffset_.y,
+        y: this.y + rowIndex * this.rowHeight + this.entryOffset_.y,
     };
 };
 
@@ -83,7 +87,7 @@ MatrixView.prototype.setEntry = function(rowIndex, columnIndex, entry) {
 MatrixView.prototype.getWidth = function() {
     var columnCount = this.matrix[0].length;
     return columnCount * this.columnWidth + this.braceConfig_.width * 2 -
-        textWidth('0') / 2 + this.braceConfig_.thickness;
+        this.entryOffset_.x / 4 + this.braceConfig_.thickness;
 };
 
 MatrixView.prototype.getHeight = function() {
@@ -105,7 +109,7 @@ MatrixView.prototype.drawMatrixValues = function() {
             var entry = row[columnIndex];
 
             text(entry,
-                this.x + columnIndex * this.columnWidth + textWidth('00'),
+                this.x + columnIndex * this.columnWidth + this.entryOffset_.x,
                 this.y + rowIndex * this.rowHeight);
         }
     }
@@ -116,28 +120,21 @@ MatrixView.prototype.drawBrace = function(isLeftBracket) {
     var thickness = this.braceConfig_.thickness;
     var height = this.braceConfig_.height;
     var width = this.braceConfig_.width;
+    var yOffset = this.braceConfig_.yOffset;
 
-    var bracePosition;
-    if (isLeftBracket) {
-        bracePosition = {
-            x: this.x - width,
-            y: this.y - textAscent() * 1.5,
-        };
-    } else {
-        bracePosition = {
-            x: this.x + columnCount * this.columnWidth +
-                width,
-            y: this.y - textAscent() * 1.5,
-        };
+    var bracePosition = {
+        x: this.x - width,
+        y: this.y + yOffset,
+    };
+    if (isLeftBracket === false) {
+        bracePosition.x = this.x + columnCount * this.columnWidth + width;
     }
 
     strokeWeight(thickness);
 
     // Vertical bar
-    line(bracePosition.x,
-        bracePosition.y,
-        bracePosition.x,
-        bracePosition.y + height);
+    line(bracePosition.x, bracePosition.y,
+        bracePosition.x, bracePosition.y + height);
     // Top nub
     line(bracePosition.x + (isLeftBracket ? 0 : -thickness / 2),
         bracePosition.y,
