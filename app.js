@@ -583,6 +583,13 @@ var scenesForProductEntry = function(params) {
             equation.message = '';
             tweener.to(highlightProduct, BASE_DURATION,
                 'radius', highlightProduct.radius - 10);
+
+            if (params.row === matrixDataProduct.length - 1 &&
+                params.column === matrixDataProduct[0].length - 1)
+            {
+                tweener.to(highlightProduct.drawProps.fillColor, BASE_DURATION,
+                    'a', 0);
+            }
         }
     ];
 };
