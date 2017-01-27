@@ -443,6 +443,8 @@ var actionDialogue = new Dialogue(width - 24, height - 8, '→',
 var BASE_DURATION = 300;
 var tweener = new Tweener();
 
+// TODO Consider removing this function, as it was mostly used for experimenting
+//      and playing around with the color scheme
 var tweenColorScheme = function(primaryColor, secondaryColor) {
     tweener.to(backgroundColor, BASE_DURATION, 'r', primaryColor.r);
     tweener.to(backgroundColor, BASE_DURATION, 'g', primaryColor.g);
@@ -618,8 +620,6 @@ var scenesForProductEntry = function(params) {
 var scenesForFirstProduct = scenesForProductEntry({
     row: 0,
     column: 0,
-    // primaryColor: { r: 12, g: 135, b: 242 },
-    // secondaryColor: { r: 40, g: 40, b: 40 },
     dialogue: {
         start: 'Now, we want to determine the first value.',
         firstEntryOfA: 'So, we multiply the first entry on the left...',
@@ -633,10 +633,6 @@ var scenesForFirstProduct = scenesForProductEntry({
 var scenesForSecondProduct = scenesForProductEntry({
     row: 0,
     column: 1,
-    primaryColor: { r: 92, g: 187, b: 151 }, // Green
-    secondaryColor: { r: 130, g: 130, b: 130 },
-    // primaryColor: { r: 245, g: 116, b: 81 },  // Orange
-    // secondaryColor: { r: 160, g: 56, b: 28 }, // Orange
     dialogue: {
         preResult: 'Which produces',
         end: 'Repeat this for the bottom row.',
@@ -646,11 +642,6 @@ var scenesForSecondProduct = scenesForProductEntry({
 var scenesForThirdProduct = scenesForProductEntry({
     row: 1,
     column: 0,
-    // primaryColor: { r: 242, g: 96, b: 82 }, // Red
-    primaryColor: { r: 245, g: 116, b: 81 },  // Orange
-    secondaryColor: { r: 130, g: 130, b: 130 },
-    // primaryColor: { r: 207, g: 81, b: 245 },  // Purple
-    // secondaryColor: { r: 109, g: 8, b: 140 }, // Purple
     dialogue: {
         preResult: 'Which produces',
         end: 'Repeat this one last time.',
@@ -660,10 +651,6 @@ var scenesForThirdProduct = scenesForProductEntry({
 var scenesForLastProduct = scenesForProductEntry({
     row: 1,
     column: 1,
-    primaryColor: { r: 242, g: 185, b: 80 }, // Yellow
-    secondaryColor: { r: 130, g: 130, b: 130 },
-    // primaryColor: { r: , g: , b:  },
-    // secondaryColor: { r: 40, g: 40, b: 40 },
     dialogue: {
         preResult: 'Which produces',
         end: 'You\'re done!',
@@ -723,21 +710,6 @@ draw = function() {
     dialogue.draw();
     equation.draw();
     actionDialogue.draw();
-
-    var yellow = { r: 242, g: 185, b: 80 };
-    var orange = { r: 245, g: 116, b: 81 };
-    var green = { r: 92, g: 187, b: 151 };
-    var blue = { r: 81, g: 207, b: 245 };
-    var size = 16;
-    noStroke();
-    fill(blue.r, blue.g, blue.b);
-    rect(0, 0, width - size, size);
-    fill(green.r, green.g, green.b);
-    rect(width - size, 0, size, height - size);
-    fill(yellow.r, yellow.g, yellow.b);
-    rect(0, size, size, height - size);
-    fill(orange.r, orange.g, orange.b);
-    rect(size, height - size, width - size, size);
 };
 
 /*
