@@ -1,6 +1,6 @@
 # Matrix Multiplication
 
-> Visualize the basics of matrix Multiplication
+> Visualize the basics of matrix multiplication
 
 
 ## Khan Academy
@@ -27,6 +27,8 @@ In order to conform to the community guidelines on Khan Academy, the recommended
 ## Considerations
 
 Note that this app uses a number of global functions/variables, as this is conventional to the environment it was written for.  For example, the Processing function `fontSize()` is available in the global context and will likewise apply the font size change to the global drawing state.
+
+This can get a bit messy pretty quickly, so the `DrawProps` class is used to help centralize these changes (and each view no longer need to worry about stepping on each other's toes).
 
 
 ## Author
