@@ -171,18 +171,19 @@ Highlight.prototype.draw = function() {
 // *****************************************************************************
 // Dialogue class **************************************************************
 // *****************************************************************************
-var Dialogue = function(x, y, message, width, height, padding, drawConfig) {
+var Dialogue = function(x, y, message, width, height, padding, drawProps) {
     this.x = x;
     this.y = y;
     this.message = message || '';
     this.width = width;
     this.height = height;
     this.padding = padding;
-    this.drawConfig = drawConfig;
+    this.drawProps = drawProps;
 };
 
 Dialogue.prototype.draw = function() {
-    this.applyDrawConfig();
+    this.drawProps.apply();
+
     if (this.width !== undefined && this.height !== undefined) {
         // TODO Determine whether padding should apply for y
         text(this.message,
@@ -194,15 +195,6 @@ Dialogue.prototype.draw = function() {
         // TODO Determine whether padding should apply
         text(this.message, this.x, this.y);
     }
-};
-
-Dialogue.prototype.applyDrawConfig = function() {
-    var myText = this.drawConfig.text;
-    var fillColor = this.drawConfig.fillColor;
-
-    textFont(myText.font, myText.size);
-    fill(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
-    textAlign(myText.halign, myText.valign);
 };
 
 
@@ -374,7 +366,7 @@ var matrixDataBlank = [
     ['', ''],
     ['', ''],
 ];
-var matrixDrawConfig = {
+var matrixProps = {
     text: {
         font: monospaceFont,
         size: 24,
@@ -386,15 +378,13 @@ var matrixDrawConfig = {
 };
 
 // Create views for matrices
-var matrixA = new MatrixView(75, 75, matrixDataA,
-    new DrawProps(matrixDrawConfig));
-var matrixB = new MatrixView(75, 75, matrixDataB,
-    new DrawProps(matrixDrawConfig));
+var matrixA = new MatrixView(75, 75, matrixDataA, new DrawProps(matrixProps));
+var matrixB = new MatrixView(75, 75, matrixDataB, new DrawProps(matrixProps));
 
-matrixDrawConfig.strokeColor.a = 0;
-matrixDrawConfig.fillColor.a = 0;
+matrixProps.strokeColor.a = 0;
+matrixProps.fillColor.a = 0;
 var matrixProduct = new MatrixView(75, 75, matrixDataBlank,
-    new DrawProps(matrixDrawConfig));
+    new DrawProps(matrixProps));
 
 // Position matrices
 var matrixSpacing = 16;
@@ -416,54 +406,28 @@ var highlightProduct = new Highlight(0, 0, 40, new DrawProps(highlightConfig));
 // *****************************************************************************
 // Dialogue setup **************************************************************
 // *****************************************************************************
-var dialogue = new Dialogue(
-    0,
-    matrixA.y + matrixA.getHeight(),
-    '',
-    width,
-    height,
-    32,
-    {
-        text: {
-            font: sansSerifFont,
-            size: 24,
-            halign: LEFT,
-            valign: BASELINE,
-        },
-        fillColor: { r: 255, g: 255, b: 255, a: 200 },
-    });
-var equation = new Dialogue(
-    0,
-    height * 3 / 4 + 28,
-    '',
-    width,
-    height,
-    32,
-    {
-        text: {
-            font: monospaceFont,
-            size: 24,
-            halign: LEFT,
-            valign: BASELINE,
-        },
-        fillColor: { r: 255, g: 255, b: 255, a: 200 },
-    });
-var actionDialogue = new Dialogue(
-    width - 24,
-    height - 8,
-    '→',
-    undefined,
-    undefined,
-    0,
-    {
-        text: {
-            font: monospaceFont,
-            size: 40,
-            halign: RIGHT,
-            valign: BOTTOM,
-        },
-        fillColor: { r: 255, g: 255, b: 255, a: 150 },
-    });
+var dialogueProps = new DrawProps({
+    text: {
+        font: sansSerifFont,
+        size: 24,
+        halign: LEFT,
+        valign: BASELINE,
+    },
+    fillColor: { r: 255, g: 255, b: 255, a: 200 },
+});
+var dialogue = new Dialogue(0, matrixA.y + matrixA.getHeight(), '',
+    width, height, 32, new DrawProps(dialogueProps));
+
+dialogueProps.text.font = monospaceFont;
+var equation = new Dialogue(0, height * 3 / 4 + 28, '', width, height, 32,
+    new DrawProps(dialogueProps));
+
+dialogueProps.text.size = 40;
+dialogueProps.text.halign = RIGHT;
+dialogueProps.text.valign = BOTTOM;
+dialogueProps.fillColor.a = 0;
+var actionDialogue = new Dialogue(width - 24, height - 8, '→',
+    undefined, undefined, 0, new DrawProps(dialogueProps));
 
 
 // *****************************************************************************
@@ -616,9 +580,9 @@ var nextScene = function() {
         scenes[currentScene]();
         currentScene++;
 
-        tweener.to(actionDialogue.drawConfig.fillColor, 0, 'a', 0)
-            .then(actionDialogue.drawConfig.fillColor, 2000, 'a', 0)
-            .then(actionDialogue.drawConfig.fillColor, 2000, 'a', 75);
+        tweener.to(actionDialogue.drawProps.fillColor, 0, 'a', 0)
+            .then(actionDialogue.drawProps.fillColor, 2000, 'a', 0)
+            .then(actionDialogue.drawProps.fillColor, 2000, 'a', 75);
 
         // TODO Ensure that, once last scene is loaded:
         //       - cursor is set back to normal
