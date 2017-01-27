@@ -334,12 +334,12 @@ Tweener.prototype.update = function() {
 };
 
 Tweener.prototype.fastForward = function() {
-    this.tweens.forEach(function(tween)) {
+    this.tweens.forEach(function(tween) {
         while (tween) {
             tween.subject[tween.key] = tween.endValue;
             tween = tween.next;
         }
-    }
+    });
 
     this.tweens = [];
 };
@@ -605,18 +605,37 @@ var scenesForSecondProduct = scenesForProductEntry({
     column: 1,
     dialogue: {
         preResult: 'Which produces',
-        end: 'And that is it.',
+        end: 'Repeat this for the bottom row.',
+    },
+});
+
+var scenesForThirdProduct = scenesForProductEntry({
+    row: 1,
+    column: 0,
+    dialogue: {
+        preResult: 'Which produces',
+        end: 'Repeat this one last time.',
+    },
+});
+
+var scenesForLastProduct = scenesForProductEntry({
+    row: 1,
+    column: 1,
+    dialogue: {
+        preResult: 'Which produces',
+        end: 'You\'re done!',
     },
 });
 
 scenes = scenes
     .concat(scenesForFirstProduct)
-    .concat(scenesForSecondProduct);
+    .concat(scenesForSecondProduct)
+    .concat(scenesForThirdProduct)
+    .concat(scenesForLastProduct);
 
 var nextScene = function() {
     if (currentScene < scenes.length - 1) {
         currentScene++;
-        scenes[currentScene]();
 
         if (currentScene < scenes.length - 1) {
             cursor(HAND);
@@ -628,6 +647,8 @@ var nextScene = function() {
             tweener.fastForward();
             tweener.to(actionDialogue.drawProps.fillColor, 0, 'a', 0);
         }
+
+        scenes[currentScene]();
     }
 };
 
