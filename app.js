@@ -1,25 +1,19 @@
 // *****************************************************************************
 // Matrix Multiplication
 // -----------------------------------------------------------------------------
-// Background:  When I was learning about matrices in high
-//   school, our textbook would only *describe* how to perform
-//   matrix multiplication.  Something about matching this row
-//   wih that column, then match this thing with that thing,
-//   etc.  Oh, and make sure the sizes are compatible by this
-//   rule and that.  It eventually makes sense, but it's a bit
-//   'bleh' when you have to perform lots of matrix
-//   multiplications by hand.
+// Background:  When I was learning about matrices in high school, our textbook
+//   would describe how to perform matrix multiplication, but it never seemed
+//   to provide good visuals to conceptualize the process.  Something about
+//   matching this row wih that column, then match this thing with that thing,
+//   etc.  It eventually makes sense, but it's a bit 'bleh' when you have to
+//   perform lots of matrix multiplications by hand.
 //
-//   Instead, the process can be simplified visually if you
-//   line up AxB so that A sits to the left of the result
-//   and B sits above the result.  At this point, you no
-//   longer need to count rows/columns.  Instead, just look
-//   for where the row from A and column from B line up,
-//   for each value in the result matrix.
+//   Instead, the process can be simplified visually if you line up AxB so
+//   that matrix A sits to the left of the product matrix, while matrix B sits
+//   above the product matrix.
 //
-//   This approach is nothing new.  But, I thought I would share
-//   it, since it has helped me and my classmates throughout
-//   high school and college.
+//   This approach is nothing new.  But, I thought I would share it, since it
+//   has helped classmates and myself throughout high school and college.
 //
 // Best,
 // Sam (aka CornerKitten)
@@ -32,11 +26,158 @@
 var matrixDataA = [
     [1, 2],
     [3, 4],
-    ];
+];
 var matrixDataB = [
     [5, 6],
     [7, 8],
-    ];
+];
+
+
+// *****************************************************************************
+// Tweener class ***************************************************************
+// *****************************************************************************
+var Tweener = function() {
+    this.tweens = [];
+};
+
+Tweener.prototype.to = function(subject, duration, key, endValue, isRepeating,
+        previous)
+    {
+    var now = millis();
+
+    var tween = {
+        subject: subject,
+        duration: duration,
+        key: key,
+        startValue: subject[key],
+        endValue: endValue,
+        diffValue: endValue - subject[key],
+        startTime: now,
+        isRepeating: isRepeating || false,
+        previous: previous,
+    };
+    if (previous) {
+        previous.next = tween;
+    } else {
+        this.tweens.push(tween);
+    }
+
+    var that = this;
+    return {
+        then: function(subject, duration, key, value, isRepeating) {
+            return that.to(subject, duration, key, value, isRepeating, tween);
+        },
+    };
+};
+
+Tweener.prototype.update = function() {
+    var now = millis();
+    var remainingTweens = [];
+
+    this.tweens.forEach(function(tween) {
+        var fractionComplete = (now - tween.startTime) / tween.duration;
+
+
+        if (fractionComplete > 1) {
+            tween.subject[tween.key] = tween.endValue;
+
+            var nextTween;
+            if (tween.next !== undefined) {
+                nextTween = tween.next;
+            } else if (tween.isRepeating) {
+                nextTween = tween;
+                while (nextTween.previous) {
+                    nextTween = nextTween.previous;
+                }
+            }
+            if (nextTween) {
+                nextTween.startTime = now;
+                nextTween.startValue = nextTween.subject[nextTween.key];
+                nextTween.diffValue = nextTween.endValue - nextTween.startValue;
+                remainingTweens.push(nextTween);
+            }
+        } else {
+            tween.subject[tween.key] = tween.startValue +
+                tween.diffValue * fractionComplete;
+            remainingTweens.push(tween);
+        }
+    });
+
+    this.tweens = remainingTweens;
+};
+
+Tweener.prototype.fastForward = function() {
+    this.tweens.forEach(function(tween) {
+        while (tween) {
+            tween.subject[tween.key] = tween.endValue;
+            tween = tween.next;
+        }
+    });
+
+    this.tweens = [];
+};
+
+
+// *****************************************************************************
+// DrawProps class *************************************************************
+// *****************************************************************************
+var DrawProps = function(props) {
+    // Since JSON.parse/.stringify is not available, and we want to ensure
+    // browser compatibility, we'll perform our copy the verbose way
+    // (which is probably fine, since I'm not sure if a font instance
+    // is serializable)
+    if (props.text) {
+        this.text = {
+            font: props.text.font,
+            size: props.text.size,
+            halign: props.text.halign,
+            valign: props.text.valign,
+        };
+    }
+    if (props.strokeColor) {
+        this.strokeColor = {
+            r: props.strokeColor.r,
+            g: props.strokeColor.g,
+            b: props.strokeColor.b,
+            a: props.strokeColor.a,
+        };
+    }
+    if (props.fillColor) {
+        this.fillColor = {
+            r: props.fillColor.r,
+            g: props.fillColor.g,
+            b: props.fillColor.b,
+            a: props.fillColor.a,
+        };
+    }
+};
+
+DrawProps.prototype.applyProps = function() {
+    if (this.text && this.text.font) {
+        textFont(this.text.font, this.text.size);
+    }
+    if (this.text && this.text.size) {
+        textSize(this.text.size);
+    }
+    // TODO Consider allowing single align to be set
+    if (this.text && this.text.halign !== undefined &&
+        this.text.valign !== undefined)
+    {
+        textAlign(this.text.halign, this.text.valign);
+    }
+    if (this.strokeColor) {
+        stroke(this.strokeColor.r,
+            this.strokeColor.g,
+            this.strokeColor.b,
+            this.strokeColor.a);
+    }
+    if (this.fillColor) {
+        fill(this.fillColor.r,
+            this.fillColor.g,
+            this.fillColor.b,
+            this.fillColor.a);
+    }
+};
 
 
 // *****************************************************************************
@@ -192,153 +333,6 @@ Dialogue.prototype.draw = function() {
         // TODO Determine whether padding should apply
         text(this.message, this.x, this.y);
     }
-};
-
-
-// *****************************************************************************
-// DrawProps class *************************************************************
-// *****************************************************************************
-var DrawProps = function(props) {
-    // Since JSON.parse/.stringify is not available, and we want to ensure
-    // browser compatibility, we'll perform our copy the verbose way
-    // (which is probably fine, since I'm not sure if a font instance
-    // is serializable)
-    if (props.text) {
-        this.text = {
-            font: props.text.font,
-            size: props.text.size,
-            halign: props.text.halign,
-            valign: props.text.valign,
-        };
-    }
-    if (props.strokeColor) {
-        this.strokeColor = {
-            r: props.strokeColor.r,
-            g: props.strokeColor.g,
-            b: props.strokeColor.b,
-            a: props.strokeColor.a,
-        };
-    }
-    if (props.fillColor) {
-        this.fillColor = {
-            r: props.fillColor.r,
-            g: props.fillColor.g,
-            b: props.fillColor.b,
-            a: props.fillColor.a,
-        };
-    }
-};
-
-DrawProps.prototype.applyProps = function() {
-    if (this.text && this.text.font) {
-        textFont(this.text.font, this.text.size);
-    }
-    if (this.text && this.text.size) {
-        textSize(this.text.size);
-    }
-    // TODO Consider allowing single align to be set
-    if (this.text && this.text.halign !== undefined &&
-        this.text.valign !== undefined)
-    {
-        textAlign(this.text.halign, this.text.valign);
-    }
-    if (this.strokeColor) {
-        stroke(this.strokeColor.r,
-            this.strokeColor.g,
-            this.strokeColor.b,
-            this.strokeColor.a);
-    }
-    if (this.fillColor) {
-        fill(this.fillColor.r,
-            this.fillColor.g,
-            this.fillColor.b,
-            this.fillColor.a);
-    }
-};
-
-
-// *****************************************************************************
-// Tweener class ***************************************************************
-// *****************************************************************************
-var Tweener = function() {
-    this.tweens = [];
-};
-
-Tweener.prototype.to = function(subject, duration, key, endValue, isRepeating,
-        previous)
-    {
-    var now = millis();
-
-    var tween = {
-        subject: subject,
-        duration: duration,
-        key: key,
-        startValue: subject[key],
-        endValue: endValue,
-        diffValue: endValue - subject[key],
-        startTime: now,
-        isRepeating: isRepeating || false,
-        previous: previous,
-    };
-    if (previous) {
-        previous.next = tween;
-    } else {
-        this.tweens.push(tween);
-    }
-
-    var that = this;
-    return {
-        then: function(subject, duration, key, value, isRepeating) {
-            return that.to(subject, duration, key, value, isRepeating, tween);
-        },
-    };
-};
-
-Tweener.prototype.update = function() {
-    var now = millis();
-    var remainingTweens = [];
-
-    this.tweens.forEach(function(tween) {
-        var fractionComplete = (now - tween.startTime) / tween.duration;
-
-
-        if (fractionComplete > 1) {
-            tween.subject[tween.key] = tween.endValue;
-
-            var nextTween;
-            if (tween.next !== undefined) {
-                nextTween = tween.next;
-            } else if (tween.isRepeating) {
-                nextTween = tween;
-                while (nextTween.previous) {
-                    nextTween = nextTween.previous;
-                }
-            }
-            if (nextTween) {
-                nextTween.startTime = now;
-                nextTween.startValue = nextTween.subject[nextTween.key];
-                nextTween.diffValue = nextTween.endValue - nextTween.startValue;
-                remainingTweens.push(nextTween);
-            }
-        } else {
-            tween.subject[tween.key] = tween.startValue +
-                tween.diffValue * fractionComplete;
-            remainingTweens.push(tween);
-        }
-    });
-
-    this.tweens = remainingTweens;
-};
-
-Tweener.prototype.fastForward = function() {
-    this.tweens.forEach(function(tween) {
-        while (tween) {
-            tween.subject[tween.key] = tween.endValue;
-            tween = tween.next;
-        }
-    });
-
-    this.tweens = [];
 };
 
 
