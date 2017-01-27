@@ -154,19 +154,15 @@ MatrixView.prototype.drawBrace = function(isLeftBracket) {
 // *****************************************************************************
 // Highlight class *************************************************************
 // *****************************************************************************
-var Highlight = function(x, y, radius) {
+var Highlight = function(x, y, radius, drawProps) {
     this.x = x;
     this.y = y;
     this.radius = radius;
-    this.drawConfig = {
-        fillColor: { r: 34, g: 148, b: 201, a: 0 },
-    };
+    this.drawProps = drawProps;
 };
 
 Highlight.prototype.draw = function() {
-    var fillColor = this.drawConfig.fillColor;
-
-    fill(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
+    this.drawProps.apply();
     noStroke();
     ellipse(this.x, this.y, this.radius, this.radius);
 };
@@ -409,9 +405,12 @@ matrixB.y += matrixB.getHeight() + matrixSpacing;
 matrixProduct.y += matrixB.getHeight() + matrixSpacing;
 
 // Create highlights for matrix entries
-var highlightA = new Highlight(0, 0, 40);
-var highlightB = new Highlight(0, 0, 40);
-var highlightProduct = new Highlight(0, 0, 40);
+var highlightConfig = {
+    fillColor: { r: 34, g: 148, b: 201, a: 0 },
+};
+var highlightA = new Highlight(0, 0, 40, new DrawProps(highlightConfig));
+var highlightB = new Highlight(0, 0, 40, new DrawProps(highlightConfig));
+var highlightProduct = new Highlight(0, 0, 40, new DrawProps(highlightConfig));
 
 
 // *****************************************************************************
@@ -499,7 +498,7 @@ var scenes = [
         var position = matrixProduct.getEntryPosition(0, 0);
         highlightProduct.x = position.x;
         highlightProduct.y = position.y;
-        tweener.to(highlightProduct.drawConfig.fillColor, BASE_DURATION,
+        tweener.to(highlightProduct.drawProps.fillColor, BASE_DURATION,
             'a', 255);
     },
     function() {
@@ -508,7 +507,7 @@ var scenes = [
         var position = matrixA.getEntryPosition(0, 0);
         highlightA.x = position.x;
         highlightA.y = position.y;
-        tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
+        tweener.to(highlightA.drawProps.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
         dialogue.message = 'By the top entry above.';
@@ -516,7 +515,7 @@ var scenes = [
         var position = matrixB.getEntryPosition(0, 0);
         highlightB.x = position.x;
         highlightB.y = position.y;
-        tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 255);
+        tweener.to(highlightB.drawProps.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
         dialogue.message = 'Then move inward.';
@@ -539,8 +538,8 @@ var scenes = [
         dialogue.message = 'Which produces';
         equation.message += ' = ';
         tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius - 10);
-        tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 0);
-        tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
+        tweener.to(highlightA.drawProps.fillColor, BASE_DURATION, 'a', 0);
+        tweener.to(highlightB.drawProps.fillColor, BASE_DURATION, 'a', 0);
     },
     function() {
         equation.message += matrixDataProduct[0][0];
@@ -563,14 +562,14 @@ var scenes = [
         var position = matrixA.getEntryPosition(0, 0);
         highlightA.x = position.x;
         highlightA.y = position.y;
-        tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 255);
+        tweener.to(highlightA.drawProps.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
         equation.message += matrixB.getEntry(0, 1) + ')';
         var position = matrixB.getEntryPosition(0, 1);
         highlightB.x = position.x;
         highlightB.y = position.y;
-        tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 255);
+        tweener.to(highlightB.drawProps.fillColor, BASE_DURATION, 'a', 255);
     },
     function() {
         equation.message += ' + ';
@@ -592,8 +591,8 @@ var scenes = [
         dialogue.message = 'Which produces';
         equation.message += ' = ';
         tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius - 10);
-        tweener.to(highlightA.drawConfig.fillColor, BASE_DURATION, 'a', 0);
-        tweener.to(highlightB.drawConfig.fillColor, BASE_DURATION, 'a', 0);
+        tweener.to(highlightA.drawProps.fillColor, BASE_DURATION, 'a', 0);
+        tweener.to(highlightB.drawProps.fillColor, BASE_DURATION, 'a', 0);
     },
     function() {
         matrixProduct.setEntry(0, 1, matrixDataProduct[0][1]);
