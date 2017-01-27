@@ -333,6 +333,17 @@ Tweener.prototype.update = function() {
     this.tweens = remainingTweens;
 };
 
+Tweener.prototype.fastForward = function() {
+    this.tweens.forEach(function(tween)) {
+        while (tween) {
+            tween.subject[tween.key] = tween.endValue;
+            tween = tween.next;
+        }
+    }
+
+    this.tweens = [];
+};
+
 
 // *****************************************************************************
 // Text and init setup *********************************************************
@@ -435,7 +446,7 @@ var actionDialogue = new Dialogue(width - 24, height - 8, '→',
 // *****************************************************************************
 var BASE_DURATION = 300;
 var tweener = new Tweener();
-var currentScene = 0;
+var currentScene = -1; // We have not started our first scene, yet
 
 var scenes = [
     function() {
@@ -467,7 +478,7 @@ var scenes = [
 // `params` properties:
 //     .row (required)
 //     .column (required)
-//     .dialogue
+//     .dialogue (required, but each sub-property is optional)
 //         .start
 //         .firstEntryOfA
 //         .firstEntryOfB
@@ -603,24 +614,27 @@ scenes = scenes
     .concat(scenesForSecondProduct);
 
 var nextScene = function() {
-    // TODO Update currentScene so it properly references our furthest
-    //      called scene function, instead of looking like an
-    //      off-by-one-error
-    if (currentScene < scenes.length) {
-        scenes[currentScene]();
+    if (currentScene < scenes.length - 1) {
         currentScene++;
+        scenes[currentScene]();
 
-        tweener.to(actionDialogue.drawProps.fillColor, 0, 'a', 0)
-            .then(actionDialogue.drawProps.fillColor, 2000, 'a', 0)
-            .then(actionDialogue.drawProps.fillColor, 2000, 'a', 75);
-
-        // TODO Ensure that, once last scene is loaded:
-        //       - cursor is set back to normal
-        //       - actionDialogue does not reappear
-        cursor(HAND);
+        if (currentScene < scenes.length - 1) {
+            cursor(HAND);
+            tweener.to(actionDialogue.drawProps.fillColor, 0, 'a', 0)
+                .then(actionDialogue.drawProps.fillColor, 2000, 'a', 0)
+                .then(actionDialogue.drawProps.fillColor, 2000, 'a', 75);
+        } else {
+            cursor('DEFAULT');
+            tweener.fastForward();
+            tweener.to(actionDialogue.drawProps.fillColor, 0, 'a', 0);
+        }
     }
 };
 
+// TODO Determine whether it's possible for a mouseClicked callback
+//      to be invoked in the middle of a draw invocation.  If so,
+//      The next scene should be scheduled, instead of immediately
+//      adjusted.
 mouseClicked = nextScene;
 
 // *****************************************************************************
