@@ -459,16 +459,6 @@ var tweenColorScheme = function(primaryColor, secondaryColor) {
     });
 };
 
-var tweenBackgroundSet = function(colors) {
-    ['r', 'g', 'b'].forEach(function(part) {
-        tweener.to(backgroundColor, BASE_DURATION * 2, part, colors[0][part])
-            .then(backgroundColor, BASE_DURATION * 2, part, colors[1][part])
-            .then(backgroundColor, BASE_DURATION * 2, part, colors[2][part])
-            .then(backgroundColor, BASE_DURATION * 2, part, colors[3][part], true);
-    });
-
-};
-
 
 // *****************************************************************************
 // Scene management ************************************************************
@@ -628,8 +618,8 @@ var scenesForProductEntry = function(params) {
 var scenesForFirstProduct = scenesForProductEntry({
     row: 0,
     column: 0,
-    primaryColor: { r: 12, g: 135, b: 242 },
-    secondaryColor: { r: 20, g: 20, b: 20 },
+    // primaryColor: { r: 12, g: 135, b: 242 },
+    // secondaryColor: { r: 40, g: 40, b: 40 },
     dialogue: {
         start: 'Now, we want to determine the first value.',
         firstEntryOfA: 'So, we multiply the first entry on the left...',
@@ -643,8 +633,8 @@ var scenesForFirstProduct = scenesForProductEntry({
 var scenesForSecondProduct = scenesForProductEntry({
     row: 0,
     column: 1,
-    primaryColor: { r: 92, g: 187, b: 151 },
-    secondaryColor: { r: 20, g: 20, b: 20 },
+    primaryColor: { r: 92, g: 187, b: 151 }, // Green
+    secondaryColor: { r: 130, g: 130, b: 130 },
     // primaryColor: { r: 245, g: 116, b: 81 },  // Orange
     // secondaryColor: { r: 160, g: 56, b: 28 }, // Orange
     dialogue: {
@@ -656,8 +646,9 @@ var scenesForSecondProduct = scenesForProductEntry({
 var scenesForThirdProduct = scenesForProductEntry({
     row: 1,
     column: 0,
-    primaryColor: { r: 242, g: 185, b: 80 },
-    secondaryColor: { r: 20, g: 20, b: 20 },
+    // primaryColor: { r: 242, g: 96, b: 82 }, // Red
+    primaryColor: { r: 245, g: 116, b: 81 },  // Orange
+    secondaryColor: { r: 130, g: 130, b: 130 },
     // primaryColor: { r: 207, g: 81, b: 245 },  // Purple
     // secondaryColor: { r: 109, g: 8, b: 140 }, // Purple
     dialogue: {
@@ -669,10 +660,10 @@ var scenesForThirdProduct = scenesForProductEntry({
 var scenesForLastProduct = scenesForProductEntry({
     row: 1,
     column: 1,
-    primaryColor: { r: 242, g: 96, b: 82 },
-    secondaryColor: { r: 20, g: 20, b: 20 },
+    primaryColor: { r: 242, g: 185, b: 80 }, // Yellow
+    secondaryColor: { r: 130, g: 130, b: 130 },
     // primaryColor: { r: , g: , b:  },
-    // secondaryColor: { r: 20, g: 20, b: 20 },
+    // secondaryColor: { r: 40, g: 40, b: 40 },
     dialogue: {
         preResult: 'Which produces',
         end: 'You\'re done!',
@@ -698,21 +689,6 @@ var nextScene = function() {
             cursor('DEFAULT');
             tweener.fastForward();
             tweener.to(actionDialogue.drawProps.fillColor, 0, 'a', 0);
-
-            // primaryColor: { r: 12, g: 135, b: 242 },
-            // secondaryColor: { r: 20, g: 20, b: 20 },
-            // primaryColor: { r: 92, g: 187, b: 151 },
-            // secondaryColor: { r: 20, g: 20, b: 20 },
-            // primaryColor: { r: 242, g: 185, b: 80 },
-            // secondaryColor: { r: 20, g: 20, b: 20 },
-            // primaryColor: { r: 242, g: 96, b: 82 },
-            // secondaryColor: { r: 20, g: 20, b: 20 },
-            tweenBackgroundSet([
-                { r: 12, g: 135, b: 242 },
-                { r: 92, g: 187, b: 151 },
-                { r: 242, g: 185, b: 80 },
-                { r: 242, g: 96, b: 82 },
-            ]);
         }
 
         scenes[currentScene]();
@@ -747,6 +723,21 @@ draw = function() {
     dialogue.draw();
     equation.draw();
     actionDialogue.draw();
+
+    var yellow = { r: 242, g: 185, b: 80 };
+    var orange = { r: 245, g: 116, b: 81 };
+    var green = { r: 92, g: 187, b: 151 };
+    var blue = { r: 81, g: 207, b: 245 };
+    var size = 16;
+    noStroke();
+    fill(yellow.r, yellow.g, yellow.b);
+    rect(0, 0, size, size);
+    fill(orange.r, orange.g, orange.b);
+    rect(width - size, 0, size, size);
+    fill(green.r, green.g, green.b);
+    rect(0, height - size, size, size);
+    fill(blue.r, blue.g, blue.b);
+    rect(width - size, height - size, size, size);
 };
 
 /*
