@@ -352,6 +352,7 @@ var monospaceFont = createFont('monospace');
 var sansSerifFont = createFont('sans-serif');
 var backgroundColor = { r: 81, g: 207, b: 245 };
 
+
 // *****************************************************************************
 // Matrix setup ****************************************************************
 // *****************************************************************************
@@ -413,7 +414,7 @@ var highlightProduct = new Highlight(0, 0, 40, new DrawProps(highlightConfig));
 // *****************************************************************************
 // Dialogue setup **************************************************************
 // *****************************************************************************
-var dialogueProps = new DrawProps({
+var dialogueProps = {
     text: {
         font: sansSerifFont,
         size: 24,
@@ -421,7 +422,7 @@ var dialogueProps = new DrawProps({
         valign: BASELINE,
     },
     fillColor: { r: 255, g: 255, b: 255, a: 200 },
-});
+};
 var dialogue = new Dialogue(0, matrixA.y + matrixA.getHeight(), '',
     width, height, 32, new DrawProps(dialogueProps));
 
