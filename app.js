@@ -517,60 +517,101 @@ var scenes = [
         tweener.to(highlightProduct, BASE_DURATION,
             'radius', highlightProduct.radius - 10);
     },
-    function() {
-        var position = matrixProduct.getEntryPosition(0, 1);
-        tweener.to(highlightProduct, BASE_DURATION, 'x', position.x);
-    },
-    function() {
-        equation.message = '(' + matrixA.getEntry(0, 0) + ' x ';
-        var position = matrixA.getEntryPosition(0, 0);
-        highlightA.x = position.x;
-        highlightA.y = position.y;
-        tweener.to(highlightA.drawProps.fillColor, BASE_DURATION, 'a', 255);
-    },
-    function() {
-        equation.message += matrixB.getEntry(0, 1) + ')';
-        var position = matrixB.getEntryPosition(0, 1);
-        highlightB.x = position.x;
-        highlightB.y = position.y;
-        tweener.to(highlightB.drawProps.fillColor, BASE_DURATION, 'a', 255);
-    },
-    function() {
-        equation.message += ' + ';
-        var positionA = matrixA.getEntryPosition(0, 1);
-        tweener.to(highlightA, BASE_DURATION, 'x', positionA.x);
-        var positionB = matrixB.getEntryPosition(1, 1);
-        tweener.to(highlightB, BASE_DURATION, 'y', positionB.y);
-    },
-    function() {
-        equation.message += '(' + matrixA.getEntry(0, 1);
-        tweener.to(highlightA, BASE_DURATION, 'radius', highlightA.radius + 10);
-    },
-    function() {
-        equation.message += ' x ' +matrixB.getEntry(1, 1) + ')';
-        tweener.to(highlightA, BASE_DURATION, 'radius', highlightA.radius - 10);
-        tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius + 10);
-    },
-    function() {
-        dialogue.message = 'Which produces';
-        equation.message += ' = ';
-        tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius - 10);
-        tweener.to(highlightA.drawProps.fillColor, BASE_DURATION, 'a', 0);
-        tweener.to(highlightB.drawProps.fillColor, BASE_DURATION, 'a', 0);
-    },
-    function() {
-        matrixProduct.setEntry(0, 1, matrixDataProduct[0][1]);
-        equation.message += matrixDataProduct[0][1];
-        tweener.to(highlightProduct, BASE_DURATION,
-            'radius', highlightProduct.radius + 10);
-    },
-    function() {
-        dialogue.message = '';
-        equation.message = '';
-        tweener.to(highlightProduct, BASE_DURATION,
-            'radius', highlightProduct.radius - 10);
-    }
+    // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 ];
+
+// `params` properties:
+//     .row (required)
+//     .column (required)
+//     .dialogue
+//         .firstEntryOfA
+//         .firstEntryOfB
+//         .moveInward
+//         .nextEntryOfA
+//         .nextEntryOfB
+//         .preResult
+//         .result
+//         .end
+var scenesForProductEntry = function(params) {
+    return [
+        function() {
+            // Highlight position in product matrix
+            var position = matrixProduct.getEntryPosition(params.row, params.column);
+            tweener.to(highlightProduct, BASE_DURATION, 'x', position.x);
+        },
+        function() {
+            // Highlight first part of calculation in A
+            equation.message = '(' + matrixA.getEntry(params.row, 0) + ' x ';
+            var position = matrixA.getEntryPosition(params.row, 0);
+            highlightA.x = position.x;
+            highlightA.y = position.y;
+            tweener.to(highlightA.drawProps.fillColor, BASE_DURATION, 'a', 255);
+        },
+        function() {
+            // Highlight first part of calculation in B
+            equation.message += matrixB.getEntry(0, params.column) + ')';
+            var position = matrixB.getEntryPosition(0, params.column);
+            highlightB.x = position.x;
+            highlightB.y = position.y;
+            tweener.to(highlightB.drawProps.fillColor, BASE_DURATION, 'a', 255);
+        },
+        function() {
+            // Move highlights inward for A and B
+            equation.message += ' + ';
+            var positionA = matrixA.getEntryPosition(params.row, 1);
+            tweener.to(highlightA, BASE_DURATION, 'x', positionA.x);
+            var positionB = matrixB.getEntryPosition(1, params.column);
+            tweener.to(highlightB, BASE_DURATION, 'y', positionB.y);
+        },
+        function() {
+            // Emphasize highlight for next part of calculation in A
+            equation.message += '(' + matrixA.getEntry(params.row, 1);
+            tweener.to(highlightA, BASE_DURATION, 'radius', highlightA.radius + 10);
+        },
+        function() {
+            // Emphasize highlight for next part of calulcation in B
+            equation.message += ' x ' +matrixB.getEntry(1, params.column) + ')';
+            tweener.to(highlightA, BASE_DURATION, 'radius', highlightA.radius - 10);
+            tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius + 10);
+        },
+        function() {
+            // Focus on where result will go in product matrix
+            dialogue.message = 'Which produces';
+            equation.message += ' = ';
+            tweener.to(highlightB, BASE_DURATION, 'radius', highlightB.radius - 10);
+            tweener.to(highlightA.drawProps.fillColor, BASE_DURATION, 'a', 0);
+            tweener.to(highlightB.drawProps.fillColor, BASE_DURATION, 'a', 0);
+        },
+        function() {
+            // Display result in product matrix
+            var result = matrixDataProduct[params.row][params.column];
+            matrixProduct.setEntry(params.row, params.column, result);
+            equation.message += result;
+            tweener.to(highlightProduct, BASE_DURATION,
+                'radius', highlightProduct.radius + 10);
+        },
+        function() {
+            // Prepare for next stage of sequence
+            dialogue.message = params.dialogue.end;
+            equation.message = '';
+            tweener.to(highlightProduct, BASE_DURATION,
+                'radius', highlightProduct.radius - 10);
+        }
+    ];
+};
+
+var nextProductScenes = scenesForProductEntry({
+    row: 0,
+    column: 1,
+    dialogue: {
+        end: 'And that is it.',
+    },
+});
+scenes = scenes.concat(nextProductScenes);
 
 var nextScene = function() {
     // TODO Update currentScene so it properly references our furthest
