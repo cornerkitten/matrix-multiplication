@@ -668,8 +668,10 @@ var nextScene = function() {
     if (currentScene < scenes.length - 1) {
         currentScene++;
 
-        if (currentScene < scenes.length - 1) {
+        if (currentScene === 0) {
             cursor(HAND);
+            actionDialogue.drawProps.fillColor.a = 75;
+        } else if (currentScene < scenes.length - 1) {
             tweener.to(actionDialogue.drawProps.fillColor, 0, 'a', 0)
                 .then(actionDialogue.drawProps.fillColor, 2000, 'a', 0)
                 .then(actionDialogue.drawProps.fillColor, 2000, 'a', 75);
@@ -683,16 +685,14 @@ var nextScene = function() {
     }
 };
 
-// TODO Determine whether it's possible for a mouseClicked callback
-//      to be invoked in the middle of a draw invocation.  If so,
-//      The next scene should be scheduled, instead of immediately
-//      adjusted.
 mouseClicked = nextScene;
+
 
 // *****************************************************************************
 // Start ***********************************************************************
 // *****************************************************************************
 nextScene();
+
 
 // *****************************************************************************
 // Draw ************************************************************************
